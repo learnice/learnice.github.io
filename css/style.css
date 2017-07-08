@@ -209,7 +209,10 @@ hr {
   margin: 25px 0; }
 
 img {
-  max-width: 100%; }
+  max-width: 100%;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;} 
   img.half {
     width: 50%; }
 
