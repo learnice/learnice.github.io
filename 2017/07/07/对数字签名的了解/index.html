@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <title>对数字签名的理解 - learnice</title>
+    <link href='/images/fav.png' rel='shortcut icon'>
+<link href='/atom.xml' rel='alternate' type='application/rss+xml'>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/responsive.css">
+<script src="/js/jquery.js"></script>
+<script src="/js/basics.js"></script>
+<meta content='width=device-width, initial-scale=1.0, user-scalable=no' name='viewport'>
+<meta content='text/html; charset=utf-8' http-equiv='content-type'>
+
+
+  </head>
+  <body>
+    <header>
+  <a id='go-back-home' href='/'><img src='/images/scribble.png' alt='Home' width='66' height='66'></a>
+  <p>learnice</p>
+  <p>不忘初心</p>
+</header>
+
+    <div id='container'>
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+      <section class='paging'>
+  
+  
+</section>
+
+      <div class='content'>
+        <section class='post'>
+          <h1>
+            <div class='date'>2017-07-07</div>
+            对数字签名的理解
+          </h1>
+          <p>以前对“数字签名”和“数字证书”的了解总是迷迷糊糊的，今天读了这篇<a href="http://www.ruanyifeng.com/blog/2011/08/what_is_a_digital_signature.html" target="_blank" rel="external">博客</a>，感觉有所了解了。</p>
+<h3 id="RSA加密"><a href="#RSA加密" class="headerlink" title="RSA加密"></a>RSA加密</h3><p>公匙加密后的数据只能有私匙解密</p>
+<p>私匙加密后的数据公匙都可以解密</p>
+<h3 id="eg（对一份文档的加密、传输过程）："><a href="#eg（对一份文档的加密、传输过程）：" class="headerlink" title="eg（对一份文档的加密、传输过程）："></a>eg（对一份文档的加密、传输过程）：</h3><p>1.A要写一份文档发送给B；<br>2.A写好文档之后，用hash函数计算出文档的摘要，然后将摘要用私匙加密，加密后的摘要就可以叫做数字签名，然后A将文档加上数字签名发送给B；<br>3.B收到文件后，首先用A的公匙去解密数字签名，如果解密后的摘要和用Hash函数计算出来的摘要一致，说明文档没有被修改过。</p>
+<h3 id="数字签名"><a href="#数字签名" class="headerlink" title="数字签名"></a>数字签名</h3><p>加密后的摘要就可以叫做数字签名</p>
+<h3 id="数字证书"><a href="#数字证书" class="headerlink" title="数字证书"></a>数字证书</h3><p>对A的公钥和一些相关信息一起加密，生成”数字证书”（Digital Certificate）。</p>
+<h3 id="CA（权威中心）"><a href="#CA（权威中心）" class="headerlink" title="CA（权威中心）"></a>CA（权威中心）</h3><p>作用：对A的公匙进行认证，CA用自己的私匙对A的公匙进行加密，B拿到数字证书用CA的公司解密就可以活得A的公匙。</p>
+<h4 id="具体流程是："><a href="#具体流程是：" class="headerlink" title="具体流程是："></a>具体流程是：</h4><p>1.A把文档、加密后的摘要、数字证书，发送给B；<br>2.B收到文件后，用CA的公匙将数字证书解密，获得A的公匙；<br>3.然后B用A的公匙将摘要解密，然后用Hash函数计算出的摘要和解密后的摘要对比。</p>
+
+          <br>
+<p>learnice</p>
+<p><img src='/images/scribble3.png' alt='scribble'  width='33' height='33'></p>
+
+        </section>
+      </div>
+      
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+    </div>
+    <footer>
+  <span class='muted'>&copy; learnice. All Rights Reserved.</span><br>
+  <a href='https://github.com/saintwinkle/hexo-theme-scribble' class='muted'>theme</a>
+  <br>
+  <br>
+</footer>
+
+  </body>
+</html>
