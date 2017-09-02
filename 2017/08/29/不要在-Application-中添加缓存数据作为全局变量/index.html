@@ -1,0 +1,113 @@
+<html>
+  <head>
+    <title>不要在 Application 中添加缓存数据作为全局变量 - learnice</title>
+    <link href='/images/fav.png' rel='shortcut icon'>
+<link href='/atom.xml' rel='alternate' type='application/rss+xml'>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/responsive.css">
+<script src="/js/jquery.js"></script>
+<script src="/js/basics.js"></script>
+<meta content='width=device-width, initial-scale=1.0, user-scalable=no' name='viewport'>
+<meta content='text/html; charset=utf-8' http-equiv='content-type'>
+
+
+  </head>
+  <body>
+    <header>
+  <a id='go-back-home' href='/'><img src='/images/scribble.png' alt='Home' width='66' height='66'></a>
+  <p>learnice</p>
+  <p>不忘初心</p>
+</header>
+
+    <div id='container'>
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+      <section class='paging'>
+  
+    <div class='left'>
+      <a href='/2017/09/01/Activity-几个有关启动模式的-flag-的简述/'>
+        ‹
+      </a>
+    </div>
+  
+  
+    <div class='right'>
+      <a href='/2017/07/24/简述-Volley-网络框架的调用流程/'>
+        ›
+      </a>
+    </div>
+  
+</section>
+
+      <div class='content'>
+        <section class='post'>
+          <h1>
+            <div class='date'>2017-08-29</div>
+            不要在 Application 中添加缓存数据作为全局变量
+          </h1>
+          <p>最近把玩公司的项目惊现一个奇怪的问题，在打开公司 APP 后切换到别的 APP（比如系统相机），然后切换回公司的 APP 发现首页上的内容全部为空了。   以前没有遇见过这种情况（心里默默批判了一下代码的编写者），然后开始各种debug，打日志，最后发现当重新回到 APP 中时，Application 中的一个变量居然为空了。什么鬼？Application 居然被回收了应用没重启？简直颠覆三观…</p>
+<p>这里说明（吐槽）一下，我用的手机是 Nexus 5X，没错就是 Google 的亲儿子，but 2G 内存，光系统就要占掉 800多M，平时可用也就300~400M，平时也就能跑两个程序，只要打开相机基本上所有的应用全会重启。不得不说这手机真的很适合做测试机。</p>
+<h3 id="以前的理解"><a href="#以前的理解" class="headerlink" title="以前的理解"></a>以前的理解</h3><p>Application 的生命周期就是应用的生命周期，当应用被回收之后，再切换回应用，应用会重新加载。</p>
+<h3 id="实践检验一下"><a href="#实践检验一下" class="headerlink" title="实践检验一下"></a>实践检验一下</h3><p>设置 Application ，其中 name 模拟了在 Application 中保存的全局变量，如果这个类被回收了，name 变量将会为空，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyApplication</span> <span class="keyword">extends</span> <span class="title">Application</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = MyApplication.class.getSimpleName();</div><div class="line">    <span class="keyword">private</span> String name;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate();</div><div class="line">        Log.e(TAG, <span class="string">"onCreate"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</div><div class="line">        Log.e(TAG, <span class="string">"getName"</span>);</div><div class="line">        <span class="keyword">return</span> name;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.name = name;</div><div class="line">        Log.e(TAG, <span class="string">"setName"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>设置 MainActivity，其中setName是控件的点击回调方法，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = MainActivity.class.getSimpleName();</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_main);</div><div class="line">        Log.e(TAG, <span class="string">"onCreate"</span>);</div><div class="line">    &#125;</div><div class="line">  </div><div class="line">  ...................省略各种生命周期函数.............................</div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(View view)</span> </span>&#123;</div><div class="line">        MyApplication application = (MyApplication) getApplication();</div><div class="line">        application.setName(<span class="string">"Application"</span>);</div><div class="line">    	startActivity(<span class="keyword">new</span> Intent(MainActivity.<span class="keyword">this</span>, ShowNameActivity.class));</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>设置 ShowNameActivity，用来判断当应用被恢复之后，应用的状态，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ShowNameActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"ShowNameActivity"</span>;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_show_name);</div><div class="line">      	Log.e(TAG, <span class="string">"onCreate"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onResume</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onResume();</div><div class="line">      	Log.e(TAG, <span class="string">"onResume"</span>);</div><div class="line">        <span class="keyword">if</span> (((MyApplication) getApplication()).getName() != <span class="keyword">null</span>) &#123;</div><div class="line">            Log.e(TAG, <span class="string">"应用恢复，name变量不为空"</span>);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            Log.e(TAG, <span class="string">"应用恢复，name变量为空"</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>实验过程：</strong></p>
+<ol>
+<li><p>启动 APP 进入 MainActivity 点击控件调用 setName ,给 Application 的 Name 变量赋值，日志如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">E/MyApplication: onCreate</div><div class="line">E/MainActivity: onCreate</div><div class="line">E/MainActivity: onStart</div><div class="line">E/MainActivity: onResume</div><div class="line">E/MyApplication: setName</div><div class="line">E/MainActivity: onPause</div><div class="line">E/ShowNameActivity: onCreate</div><div class="line">E/MyApplication: getName</div><div class="line">E/ShowNameActivity: 应用恢复，name变量不为空  <span class="comment">//这个是正常进入ShowNameActivity，这条日志可以忽略</span></div><div class="line">E/MainActivity: onStop</div></pre></td></tr></table></figure>
+</li>
+<li><p>切换到别的应用（我切换到相机应用），一段时间，日志如下：</p>
+<p>同时看 AS 的 Monitor 就会发现这个应用已经被杀了。</p>
+<p><img src="/images/app_dead" alt="app_dead"></p>
+</li>
+<li><p>在切回到这个应用，日志如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">E/MyApplication: onCreate</div><div class="line">E/ShowNameActivity: onCreate</div><div class="line">E/ShowNameActivity: onResume</div><div class="line">E/MyApplication: getName</div><div class="line">E/ShowNameActivity: 应用恢复，name变量为空</div></pre></td></tr></table></figure>
+<p>应用被恢复后，直接进入了 ShowNameActivity ，到这里也就可以得出结论了。</p>
+</li>
+</ol>
+<h3 id="新的理解"><a href="#新的理解" class="headerlink" title="新的理解"></a>新的理解</h3><p>这里可以发现当应用被回收后，再次切换到应用中时，应用并没有进入 MainActivity 而是直接进入了 ShowNameActivity 中，所以应用并没有被重新创建，而是被系统恢复了。虽然被系统恢复了，但是系统只会重新创建这些类，系统并没有保存类的信息（系统也不知道要保存哪些信息，所以这也就是 onSaveInstanceState 存在的意义了），系统应该保存了 Activity 的栈的情况，所以就直接恢复到栈原来的状态。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>不要在 Application 对象中缓存数据化，这有可能会导致你的程序崩掉。请使用 Intent 在各组件之间传递数据，抑或是将数据存储在磁盘中,然后在需要的时候取出来。 </p>
+
+          <br>
+<p>learnice</p>
+<p><img src='/images/scribble3.png' alt='scribble'  width='33' height='33'></p>
+
+        </section>
+      </div>
+      
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+    </div>
+    <footer>
+  <span class='muted'>&copy; learnice. All Rights Reserved.</span><br>
+  <a href='https://github.com/saintwinkle/hexo-theme-scribble' class='muted'>theme</a>
+  <br>
+  <br>
+</footer>
+
+  </body>
+</html>
