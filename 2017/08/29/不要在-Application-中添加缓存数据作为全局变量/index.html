@@ -71,7 +71,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">E/MyApplication: onCreate</div><div class="line">E/MainActivity: onCreate</div><div class="line">E/MainActivity: onStart</div><div class="line">E/MainActivity: onResume</div><div class="line">E/MyApplication: setName</div><div class="line">E/MainActivity: onPause</div><div class="line">E/ShowNameActivity: onCreate</div><div class="line">E/MyApplication: getName</div><div class="line">E/ShowNameActivity: 应用恢复，name变量不为空  <span class="comment">//这个是正常进入ShowNameActivity，这条日志可以忽略</span></div><div class="line">E/MainActivity: onStop</div></pre></td></tr></table></figure>
 </li>
 <li><p>切换到别的应用（我切换到相机应用），一段时间，日志如下：</p>
-<p>同时看 AS 的 Monitor 就会发现这个应用已经被杀了。</p>
+<p>同时看 AS 的 Monitor 就会发现这个应用已经被杀了(显示的是 pixel ，其实是刷的 pixel rom )。</p>
 <p><img src="/images/app_dead.png" alt="app_dead"></p>
 </li>
 <li><p>在切回到这个应用，日志如下：</p>
