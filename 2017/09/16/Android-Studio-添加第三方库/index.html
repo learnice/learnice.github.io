@@ -1,0 +1,124 @@
+<html>
+  <head>
+    <title>Android Studio 添加第三方库 - learnice</title>
+    <link href='/images/fav.png' rel='shortcut icon'>
+<link href='/atom.xml' rel='alternate' type='application/rss+xml'>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/responsive.css">
+<script src="/js/jquery.js"></script>
+<script src="/js/basics.js"></script>
+<meta content='width=device-width, initial-scale=1.0, user-scalable=no' name='viewport'>
+<meta content='text/html; charset=utf-8' http-equiv='content-type'>
+
+
+  </head>
+  <body>
+    <header>
+  <a id='go-back-home' href='/'><img src='/images/scribble.png' alt='Home' width='66' height='66'></a>
+  <p>learnice</p>
+  <p>不忘初心</p>
+</header>
+
+    <div id='container'>
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+      <section class='paging'>
+  
+  
+    <div class='right'>
+      <a href='/2017/09/01/Activity-几个有关启动模式的-flag-的简述/'>
+        ›
+      </a>
+    </div>
+  
+</section>
+
+      <div class='content'>
+        <section class='post'>
+          <h1>
+            <div class='date'>2017-09-16</div>
+            Android Studio 添加第三方库
+          </h1>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>最近项目要使用第三方的 SDK 开发，自然要添加第三方的 jar、so，当把文件复制好后切换到 Studio 界面时，突然心里一阵惆怅，往哪儿放来着？为了防止下次再慌乱，赶紧写一篇博客记录一下。</p>
+<h3 id="AS-添加第三方库方式"><a href="#AS-添加第三方库方式" class="headerlink" title="AS 添加第三方库方式"></a>AS 添加第三方库方式</h3><h4 id="添加-Library-dependency"><a href="#添加-Library-dependency" class="headerlink" title="添加 Library dependency"></a>添加 Library dependency</h4><p><strong>方法一：</strong></p>
+<p>在 Android Studio 中点击 File -&gt; Project Structure (快捷键 ctrl + alt + shift + s)，然后选择对应的 Module，然后点击 Dependencies ,然后点击 + ，选择 Library dependency，然后在弹出的窗口中就可以搜索添加相应的依赖了。</p>
+<p><img src="/images/dependency.png" alt="dependency"></p>
+<p><img src="/images/choose_dependency.png" alt="choose_dependenccy"></p>
+<p><strong>方法二</strong></p>
+<p>如果知道依赖库所在仓库的位置，可以直接复制相应的代码到 Module 的 gradle 中。</p>
+<h4 id="添加-Module"><a href="#添加-Module" class="headerlink" title="添加 Module"></a>添加 Module</h4><p>首先新建 Module，File -&gt; New -&gt; New Module （或者 import Module，这个是导入别的 Module），然后给 Module 起个名字就可以了。</p>
+<p>然后如果别的 Module（以 app Module 为例） 需要依赖这个新建的 Module，需要执行上面 “方法一”中的步骤，但是在点击 + 后要选择的的是 Module Dependency ，选中要依赖的 Module 点击确定就可以了。</p>
+<p><strong>实例</strong></p>
+<p>我新建了一个 My Library 的 Module</p>
+<p><img src="/images/new_module.png" alt="/new_module"></p>
+<p>然后给 app Module 添加一个 Module 依赖</p>
+<p><img src="/images/add_module_dependency.png" alt="add_module_dependency"></p>
+<p><img src="/images/add_module.png" alt="add_module"></p>
+<p>然后会发现 app Module 中添加了一条</p>
+<p><img src="/images/compile_module.png" alt="compile_module"></p>
+<p>相应的 app Module 的 gradle 中也添加一条</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function">compile <span class="title">project</span><span class="params">(<span class="string">':mylibrary'</span>)</span></span></div></pre></td></tr></table></figure>
+<p>当然了直接在 gradle 中添加这行代码也是可以的（别的 Module 中需要这个依赖也可以直接添加这行代码）。</p>
+<p><strong>这里画一个重点</strong></p>
+<p>Android Studio 是怎么区分那个 Module 是 Library，那个是 Application 的呢？</p>
+<p>其实在每个 Module 的 gradle 中第一行都表示了他自己的属性，如果是：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apply plugin: <span class="string">'com.android.application'</span></div></pre></td></tr></table></figure>
+<p>表明它是一个 Application 。</p>
+<p>如果是：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apply plugin: <span class="string">'com.android.library'</span></div></pre></td></tr></table></figure>
+<p>表明它是一个 Library 。</p>
+<h4 id="添加-libs"><a href="#添加-libs" class="headerlink" title="添加 libs"></a>添加 libs</h4><p>首先将项目的视图切换成 project ，找到 module -&gt; libs(如果没有新建一个)，然后将对应的 jar 文件复制进去。</p>
+<p><img src="/images/libs.png" alt="libs"></p>
+<p>然后在 module 的 gradle 中添加（一般项目新建的时候都会自动生成了）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function">compile <span class="title">fileTree</span><span class="params">(include: [<span class="string">'*.jar'</span>], dir: <span class="string">'libs'</span>)</span></span></div></pre></td></tr></table></figure>
+<p>这句代码的意思就是，编译 libs 目录下的所有 .jar 文件。</p>
+<h4 id="添加-SO-文件"><a href="#添加-SO-文件" class="headerlink" title="添加 SO 文件"></a>添加 SO 文件</h4><p>在项目中 so 文件有可以放在两个地方（以 app Module 为例）：</p>
+<p>第一简单粗暴，直接在 app / src / mian 下新建 jniLibs 目录，然后将需要的 so 文件复制进去同步一下就好了。（强调一下那个 “jniLibs” 要注意大小写，要不然在 linux 中会出现找不到这个目录，windows 没有这个情况）；</p>
+<p>第二委婉含蓄，把 so 文件放到 app / libs 目录下，然后在 gradle 中添加：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">android&#123;</div><div class="line">  ....</div><div class="line">    sourceSets &#123;</div><div class="line">  		main &#123;</div><div class="line">        	jniLibs.srcDirs =[<span class="string">'libs'</span>]</div><div class="line">  		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后同步一下就可以了。</p>
+<p>不管是第一种还是第二种，只要添加完同步成功后，切换到 Android 视图显示出 jinLibs 文件夹就是成功了</p>
+<p><img src="/imags/jnilibs.png" alt="jnilibs.png"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>以上就是平常开发中添加第三方库的主要方式，加深影响。</p>
+<p>一周又过去了，真正感觉到了时间飞逝，希望我们都能把握好时间，把握好机遇！</p>
+
+          <br>
+<p>learnice</p>
+<p><img src='/images/scribble3.png' alt='scribble'  width='33' height='33'></p>
+
+        </section>
+      </div>
+      
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+    </div>
+    <footer>
+  <span class='muted'>&copy; learnice. All Rights Reserved.</span><br>
+  <a href='https://github.com/saintwinkle/hexo-theme-scribble' class='muted'>theme</a>
+  <br>
+  <br>
+</footer>
+
+  </body>
+</html>
