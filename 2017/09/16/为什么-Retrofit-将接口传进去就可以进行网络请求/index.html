@@ -1,0 +1,95 @@
+<html>
+  <head>
+    <title>为什么 Retrofit 将接口传进去就可以进行网络请求? - learnice</title>
+    <link href='/images/fav.png' rel='shortcut icon'>
+<link href='/atom.xml' rel='alternate' type='application/rss+xml'>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/responsive.css">
+<script src="/js/jquery.js"></script>
+<script src="/js/basics.js"></script>
+<meta content='width=device-width, initial-scale=1.0, user-scalable=no' name='viewport'>
+<meta content='text/html; charset=utf-8' http-equiv='content-type'>
+
+
+  </head>
+  <body>
+    <header>
+  <a id='go-back-home' href='/'><img src='/images/scribble.png' alt='Home' width='66' height='66'></a>
+  <p>learnice</p>
+  <p>不忘初心</p>
+</header>
+
+    <div id='container'>
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+      <section class='paging'>
+  
+  
+    <div class='right'>
+      <a href='/2017/09/16/Android-Studio-添加第三方库/'>
+        ›
+      </a>
+    </div>
+  
+</section>
+
+      <div class='content'>
+        <section class='post'>
+          <h1>
+            <div class='date'>2017-09-16</div>
+            为什么 Retrofit 将接口传进去就可以进行网络请求?
+          </h1>
+          <p>这篇是很久以前写的一篇，那时候对 Retrofit 感到困惑，现在把这篇文章搬过来。</p>
+<p>###前言</p>
+<p>玩 Android 比较晚，现在才开始看 Retrofit，但是一直搞不明白，为什么写个接口（方法都是抽象方法）传进去，框架就可以知道我要传的参数以及返回值呢？</p>
+<p>稍稍进入源码然后看到原来是用的动态代理，原理就是：一个接口被动态代理，只要调用代理类的任何的方法，都可以获得该方法的参数以及方法注解，然后既可以做任何事情了（要的就是接口中的方法的参数以及方法注解）！</p>
+<p>Retrofit 的 create 方法，使用了动态代理（只保留了动态代理相关的内容）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">create</span><span class="params">(finalClassservice)</span> </span>&#123;</div><div class="line"></div><div class="line">     <span class="keyword">return</span> (T) Proxy.newProxyInstance(service.getClassLoader() , newClass[] &#123;service&#125; ,</div><div class="line"></div><div class="line">        <span class="keyword">new</span> InvocationHandler() &#123;</div><div class="line"></div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span> <span class="params">(Object proxy,Method method,Object[] args)</span></span></div><div class="line">                    <span class="keyword">throws</span> Throwable&#123;</div><div class="line">        &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h3><p>写一个 Java 的 Demo 来解释这一个过程（注意看代码上的注释）：</p>
+<p>首先新建一个接口（被代理的类）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Subject</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Deprecated</span>   <span class="comment">//可以类比方法上的接口</span></div><div class="line">    <span class="function">String <span class="title">getName</span><span class="params">(String a,String b)</span></span>;  <span class="comment">//两个参数</span></div><div class="line"></div><div class="line">    <span class="function">String <span class="title">fromatName</span><span class="params">(String a , String b)</span></span>;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>写测试类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line"></div><div class="line">        <span class="comment">//获取InvocationHandler</span></div><div class="line">        InvocationHandler handle = <span class="keyword">new</span> InvokeHandle();</div><div class="line"></div><div class="line">        <span class="comment">//获取动态代理类</span></div><div class="line">        Subject s = getProxy(handle.getClass().getClassLoader(), <span class="keyword">new</span> Class[] &#123; Subject.class &#125;, handle);</div><div class="line"></div><div class="line">        <span class="comment">//调用动态代理的方法</span></div><div class="line">        System.out.println(s.getName(<span class="string">"android"</span>, <span class="string">"developer"</span>));</div><div class="line"></div><div class="line">        System.out.println(s.fromatName(<span class="string">"java"</span>, <span class="string">"so easy"</span>));</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">//方法 获取代理对象</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Subject <span class="title">getProxy</span><span class="params">(ClassLoader classLoader, Class[] c, InvocationHandler handler)</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> (Subject) Proxy.newProxyInstance(classLoader, c, handler);</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//内部类 实现了InvocationHandler</span></div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">InvokeHandle</span> <span class="keyword">implements</span> <span class="title">InvocationHandler</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line"></div><div class="line">        <span class="comment">//获取当前调用方法上的注解</span></div><div class="line">        Annotation[] anno = method.getAnnotations();</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (Annotation annotation : anno) &#123;</div><div class="line"></div><div class="line">            System.out.println(annotation.toString());</div><div class="line"></div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">//获取当前调用方法上的所有参数</span></div><div class="line">        <span class="keyword">for</span> (Object object : args) &#123;</div><div class="line"></div><div class="line">            System.out.print(object + <span class="string">"  "</span>);</div><div class="line"></div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">//到这里已经拿到了方法上所有的注解以及参数，然后就可以想干啥干啥了 。。。</span></div><div class="line">        System.out.println();</div><div class="line"></div><div class="line">        <span class="keyword">return</span> <span class="string">"成功获取参数"</span>;</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>嗯嗯，好吧，就是这么简单。</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>源码还是很重要的，看过源码和没看过源码，编码完全是两种不同的心态！</p>
+
+          <br>
+<p>learnice</p>
+<p><img src='/images/scribble3.png' alt='scribble'  width='33' height='33'></p>
+
+        </section>
+      </div>
+      
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+    </div>
+    <footer>
+  <span class='muted'>&copy; learnice. All Rights Reserved.</span><br>
+  <a href='https://github.com/saintwinkle/hexo-theme-scribble' class='muted'>theme</a>
+  <br>
+  <br>
+</footer>
+
+  </body>
+</html>
