@@ -1,0 +1,128 @@
+<html>
+  <head>
+    <title>线程池的一点使用分析 - learnice</title>
+    <link href='/images/fav.png' rel='shortcut icon'>
+<link href='/atom.xml' rel='alternate' type='application/rss+xml'>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/responsive.css">
+<script src="/js/jquery.js"></script>
+<script src="/js/basics.js"></script>
+<meta content='width=device-width, initial-scale=1.0, user-scalable=no' name='viewport'>
+<meta content='text/html; charset=utf-8' http-equiv='content-type'>
+
+
+  </head>
+  <body>
+    <header>
+  <a id='go-back-home' href='/'><img src='/images/scribble.png' alt='Home' width='66' height='66'></a>
+  <p>learnice</p>
+  <p>不忘初心</p>
+</header>
+
+    <div id='container'>
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+      <section class='paging'>
+  
+  
+    <div class='right'>
+      <a href='/2017/09/16/为什么-Retrofit-将接口传进去就可以进行网络请求/'>
+        ›
+      </a>
+    </div>
+  
+</section>
+
+      <div class='content'>
+        <section class='post'>
+          <h1>
+            <div class='date'>2017-09-16</div>
+            线程池的一点使用分析
+          </h1>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Android 的世界里，很多地方都可看到线程池的应用，如果对它一无所知，很快就会被 out ，今天赶紧吧线程池的用法小小的总结一下。</p>
+<h3 id="使用分析"><a href="#使用分析" class="headerlink" title="使用分析"></a>使用分析</h3><p>我们可以通过 ThreadPoolExecutor 来创建一个线程池，首先看一下它的构造函数：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,</span></span></div><div class="line">                              <span class="keyword">int</span> maximumPoolSize,</div><div class="line">                              <span class="keyword">long</span> keepAliveTime,</div><div class="line">                              TimeUnit unit,</div><div class="line">                              BlockingQueue&lt;Runnable&gt; workQueue,</div><div class="line">                              ThreadFactory threadFactory,</div><div class="line">                              RejectedExecutionHandler handler)&#123;</div><div class="line">  ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>嗯，只有短短的7个参数，现在看一下每个参数的含义（分析大多来自于 <a href="infoq.com">infoq.com</a> )</p>
+<p><strong>corePoolSize：</strong>核心线程池的大小，它的执行逻辑是，当提交一个任务到线程池时，线程池会创建一个线程来执行任务，即使其他空闲的基本线程能够执行新任务也会创建线程，等到需要执行的任务数大于线程池基本大小时就不再创建。如果调用了线程池的 prestartAllCoreThread s方法，线程池会提前创建并启动所有基本线程。</p>
+<p><strong>maximumPoolSize：</strong>线程池最大大小，它的执行逻辑是，如果队列满了，并且已创建的线程数小于最大线程数，则线程池会再创建新的线程执行任务。值得注意的是如果使用了无界的任务队列这个参数就没什么效果。</p>
+<p><strong>keepAliveTime：</strong>线程没有任务时保持的时间，所以如果任务很多，并且每个任务执行的时间比较短，可以调大这个时间，提高线程的利用率。</p>
+<p><strong>unit：</strong>线程活动保持时间的单位</p>
+<p><strong>workQueue：</strong>任务队列，用于保存等待执行的任务的阻塞队列。</p>
+<p><strong>threadFactory：</strong>用于设置创建线程的工厂，可以通过线程工厂给每个创建出来的线程设置更有意义的名字。</p>
+<p><strong>handler：</strong>饱和策略（这个暂时还不懂，先将大神的解释放在这里），当队列和线程池都满了，说明线程池处于饱和状态，那么必须采取一种策略处理提交的新任务。这个策略默认情况下是 AbortPolicy，表示无法处理新任务时抛出异常。以下是 JDK1.5 提供的四种策略。</p>
+<ul>
+<li>AbortPolicy：直接抛出异常。</li>
+<li>CallerRunsPolicy：只用调用者所在线程来运行任务。</li>
+<li>DiscardOldestPolicy：丢弃队列里最近的一个任务，并执行当前任务。</li>
+<li>DiscardPolicy：不处理，丢弃掉。</li>
+<li>当然也可以根据应用场景需要来实现 RejectedExecutionHandler 接口自定义策略。如记录日志或持久化不能处理的任务。</li>
+</ul>
+<p>JDK 为我们创建线程池提供了方便的静态方法，下面列举几个常用的方法解释下，里面的任务队列的特性，这也是我们选用哪种线程池的原则：</p>
+<p><strong>Executors.newFixedThreadPool(10) </strong>方法体如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newFixedThreadPool</span><span class="params">(<span class="keyword">int</span> nThreads)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(nThreads, nThreads,</div><div class="line">                                      <span class="number">0L</span>, TimeUnit.MILLISECONDS,</div><div class="line">                                      <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;());</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>使用的队列是 LinkedBlockingQueue ，core 和 max 都是相同的</li>
+<li>队列的特性是任务进来时，如果当前运行的线程数量 &lt; core 线程数，则直接执行任务； 如果有任务进来，当前运行的线程数量 &gt;= core 线程数，则将任务添加到该队列中</li>
+<li>keepAliveTime == 0 意味着当线程没有任务时会被立即回收</li>
+</ul>
+<p><strong>Executors.newCachedThreadPool() </strong>方法体如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newCachedThreadPool</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">0</span>, Integer.MAX_VALUE,</div><div class="line">                                      <span class="number">60L</span>, TimeUnit.SECONDS,</div><div class="line">                                      <span class="keyword">new</span> SynchronousQueue&lt;Runnable&gt;());</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>使用的队列是 SynchronousQueue ，core == 0，max 相当于无限大</li>
+<li>队列的特性是如果有任务进来，如果当前的线程数量 &lt; max，则首先执行任务； 如果当前的线程数量 == max，继续执行任务，如果这个时候再有一个任务进来时，则将任务添加到队列。（接下来如果还有任务进来，就会执行异常策略）所以使用这个队列时，max 线程一般是无限大也就是无界线程池</li>
+<li>keepAliveTime == 60s</li>
+</ul>
+<p><strong>Executors.newSingleThreadExecutor() </strong>  方法体如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newSingleThreadExecutor</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FinalizableDelegatedExecutorService</div><div class="line">            (<span class="keyword">new</span> ThreadPoolExecutor(<span class="number">1</span>, <span class="number">1</span>,</div><div class="line">                                    <span class="number">0L</span>, TimeUnit.MILLISECONDS,</div><div class="line">                                    <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;()));</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>使用的队列是 LinkedBlockingQueue，core == max == 1</li>
+<li>它和第一个基本类似，只不过它的线程池中只有一个线程，当大于一个任务进来时，都会进入到队列中</li>
+</ul>
+<p><strong>ArrayBlockingQueue： </strong>区别去以上三种队列，还存在一种有边界的队列（它内部实现是数组，有大小的限制），它的特性是：</p>
+<ul>
+<li>如果有任务进来，如果当前线程数量 &lt; core，则直接执行任务</li>
+<li>如果有任务进来，如果当前 core &lt; 线程数量 &lt; max ，则将任务添加到该队列中</li>
+<li>如果有任务进来，当前的队列已经满了，而且线程的数量 &lt; max，开启新线程执行任务</li>
+<li>如果有任务进来，当前的线程的数量 == max，就会执行异常策略</li>
+</ul>
+<h2 id="未完待续"><a href="#未完待续" class="headerlink" title="未完待续"></a>未完待续</h2>
+          <br>
+<p>learnice</p>
+<p><img src='/images/scribble3.png' alt='scribble'  width='33' height='33'></p>
+
+        </section>
+      </div>
+      
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+    </div>
+    <footer>
+  <span class='muted'>&copy; learnice. All Rights Reserved.</span><br>
+  <a href='https://github.com/saintwinkle/hexo-theme-scribble' class='muted'>theme</a>
+  <br>
+  <br>
+</footer>
+
+  </body>
+</html>
