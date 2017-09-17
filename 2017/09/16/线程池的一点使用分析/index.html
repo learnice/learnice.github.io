@@ -51,8 +51,7 @@
             线程池的一点使用分析
           </h1>
           <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Android 的世界里，很多地方都可看到线程池的应用，如果对它一无所知，很快就会被 out ，今天赶紧吧线程池的用法小小的总结一下。</p>
-<h3 id="使用分析"><a href="#使用分析" class="headerlink" title="使用分析"></a>使用分析</h3><p>####线程池的构造</p>
-<p>我们可以通过 ThreadPoolExecutor 来创建一个线程池，首先看一下它的构造函数：</p>
+<h3 id="使用分析"><a href="#使用分析" class="headerlink" title="使用分析"></a>使用分析</h3><h4 id="线程池的构造"><a href="#线程池的构造" class="headerlink" title="线程池的构造"></a>线程池的构造</h4><p>我们可以通过 ThreadPoolExecutor 来创建一个线程池，首先看一下它的构造函数：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,</span></span></div><div class="line">                              <span class="keyword">int</span> maximumPoolSize,</div><div class="line">                              <span class="keyword">long</span> keepAliveTime,</div><div class="line">                              TimeUnit unit,</div><div class="line">                              BlockingQueue&lt;Runnable&gt; workQueue,</div><div class="line">                              ThreadFactory threadFactory,</div><div class="line">                              RejectedExecutionHandler handler)&#123;</div><div class="line">  ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>嗯，只有短短的7个参数，现在看一下每个参数的含义（分析大多来自于 <a href="http://ifeve.com/" target="_blank" rel="external">ifeve.com</a> ,感谢作者)</p>
 <p><strong>corePoolSize：</strong>核心线程池的大小，它的执行逻辑是，当提交一个任务到线程池时，线程池会创建一个线程来执行任务，即使其他空闲的基本线程能够执行新任务也会创建线程，等到需要执行的任务数大于线程池基本大小时就不再创建。如果调用了线程池的 prestartAllCoreThread s方法，线程池会提前创建并启动所有基本线程。</p>
@@ -74,14 +73,14 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newFixedThreadPool</span><span class="params">(<span class="keyword">int</span> nThreads)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(nThreads, nThreads,</div><div class="line">                                      <span class="number">0L</span>, TimeUnit.MILLISECONDS,</div><div class="line">                                      <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;());</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
 <ul>
 <li>使用的队列是 LinkedBlockingQueue ，core 和 max 都是相同的</li>
-<li>队列的特性是任务进来时，如果当前运行的线程数量 &lt; core 线程数，则直接执行任务； 如果有任务进来，当前运行的线程数量 &gt;= core 线程数，则将任务添加到该队列中</li>
+<li>队列的特性是无界队列</li>
 <li>keepAliveTime == 0 意味着当线程没有任务时会被立即回收</li>
 </ul>
 <p><strong>Executors.newCachedThreadPool() </strong>方法体如下：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newCachedThreadPool</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">0</span>, Integer.MAX_VALUE,</div><div class="line">                                      <span class="number">60L</span>, TimeUnit.SECONDS,</div><div class="line">                                      <span class="keyword">new</span> SynchronousQueue&lt;Runnable&gt;());</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
 <ul>
 <li>使用的队列是 SynchronousQueue ，core == 0，max 相当于无限大</li>
-<li>队列的特性是如果有任务进来，如果当前的线程数量 &lt; max，则首先执行任务； 如果当前的线程数量 == max，继续执行任务，如果这个时候再有一个任务进来时，则将任务添加到队列。（接下来如果还有任务进来，就会执行异常策略）所以使用这个队列时，max 线程一般是无限大也就是无界线程池</li>
+<li>队列的特性是一个不存储元素的阻塞队列</li>
 <li>keepAliveTime == 60s</li>
 </ul>
 <p><strong>Executors.newSingleThreadExecutor() </strong>  方法体如下：</p>
@@ -90,14 +89,46 @@
 <li>使用的队列是 LinkedBlockingQueue，core == max == 1</li>
 <li>它和第一个基本类似，只不过它的线程池中只有一个线程，当大于一个任务进来时，都会进入到队列中</li>
 </ul>
-<p><strong>ArrayBlockingQueue： </strong>区别去以上三种队列，还存在一种有边界的队列（它内部实现是数组，有大小的限制），它的特性是：</p>
+<p><strong>ArrayBlockingQueue： </strong>区别去以上两种队列，还存在一种有边界的队列（它内部实现是数组，有大小的限制）</p>
+<h4 id="线程池的使用"><a href="#线程池的使用" class="headerlink" title="线程池的使用"></a>线程池的使用</h4><p><strong>1.</strong> 我们可以直接使用 execute 提交任务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">ExecutorService executor = Executors.newSingleThreadExecutor();</div><div class="line">        executor.execute(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">            &#125;</div><div class="line">        &#125;);</div></pre></td></tr></table></figure>
+<p>输入的任务是一个 Runnable 对象，没有返回值。</p>
+<p><strong>2.</strong> 可以使用 submit 方法来提交任务，它会返回一个 future,那么我们可以通过这个 future 来判断任务是否执行成功，通过  future 的 get 方法来获取返回值，get 方法会阻塞住直到任务完成，而使用 get(long timeout, TimeUnit unit) 方法则会阻塞一段时间后立即返回，这时有可能任务没有执行完。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">ExecutorService executor = Executors.newSingleThreadExecutor();</div><div class="line"></div><div class="line">Future&lt;String&gt; future = executor.submit(<span class="keyword">new</span> Callable&lt;String&gt;() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">""</span>;</div><div class="line">    &#125;</div><div class="line">&#125;);</div><div class="line"></div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    String str = future.get(<span class="number">5</span>, TimeUnit.SECONDS);</div><div class="line">    System.out.println(<span class="string">"return"</span> + str.toString());</div><div class="line">&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125; <span class="keyword">catch</span> (TimeoutException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125; <span class="keyword">finally</span> &#123;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="线程池的关闭"><a href="#线程池的关闭" class="headerlink" title="线程池的关闭"></a>线程池的关闭</h4><p>我们可以通过调用线程池的 shutdown 或 shutdownNow 方法来关闭线程池，它们的原理是遍历线程池中的工作线程，然后逐个调用线程的 interrupt 方法来中断线程，所以无法响应中断的任务可能永远无法终止。但是它们存在一定的区别，shutdownNow 首先将线程池的状态设置成 STOP，然后尝试停止所有的正在执行或暂停任务的线程，并返回等待执行任务的列表，而 shutdown 只是将线程池的状态设置成 SHUTDOWN 状态，然后中断所有没有正在执行任务的线程。</p>
+<p>只要调用了这两个关闭方法的其中一个，isShutdown 方法就会返回 true。当所有的任务都已关闭后,才表示线程池关闭成功，这时调用 isTerminaed 方法会返回 true。至于我们应该调用哪一种方法来关闭线程池，应该由提交到线程池的任务特性决定，通常调用 shutdown 来关闭线程池，如果任务不一定要执行完，则可以调用 shutdownNow。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">ExecutorService executor = Executors.newSingleThreadExecutor();</div><div class="line"></div><div class="line">        Future&lt;String&gt; future = executor.submit(() -&gt; &#123;</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                System.out.println(<span class="string">"任务开始"</span>);</div><div class="line">                Thread.sleep(<span class="number">5000</span>);</div><div class="line">                System.out.println(<span class="string">"任务结束"</span>);</div><div class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;    <span class="comment">//这里要捕获中断异常</span></div><div class="line">                System.out.println(<span class="string">"线程中断"</span>);</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> <span class="string">"success"</span>;</div><div class="line">        &#125;);</div><div class="line"></div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            Thread.sleep(<span class="number">2000</span>);</div><div class="line">            executor.shutdownNow();</div><div class="line">            String str = future.get(<span class="number">6</span>, TimeUnit.SECONDS);</div><div class="line">            System.out.println(str.toString());</div><div class="line"></div><div class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; <span class="keyword">catch</span> (TimeoutException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125; <span class="keyword">finally</span> &#123;</div><div class="line"></div><div class="line">        &#125;</div></pre></td></tr></table></figure>
+<h4 id="线程池的分析"><a href="#线程池的分析" class="headerlink" title="线程池的分析"></a>线程池的分析</h4><p>流程分析：线程池的主要工作流程如下图：</p>
+<p><img src="/images/threadpool.jpg" alt="threadpool"></p>
+<p>从上图我们可以看出，当提交一个新任务到线程池时，线程池的处理流程如下：</p>
+<ol>
+<li>首先线程池判断<strong>基本线程池</strong>是否已满？没满，创建一个工作线程来执行任务。满了，则进入下个流程。</li>
+<li>其次线程池判断<strong>工作队列</strong>是否已满？没满，则将新提交的任务存储在工作队列里。满了，则进入下个流程。</li>
+<li>最后线程池判断<strong>整个线程池</strong>是否已满？没满，则创建一个新的工作线程来执行任务，满了，则交给饱和策略来处理这个任务。</li>
+</ol>
+<h4 id="合理的配置线程池"><a href="#合理的配置线程池" class="headerlink" title="合理的配置线程池"></a>合理的配置线程池</h4><p>要想合理的配置线程池，就必须首先分析任务特性，可以从以下几个角度来进行分析：</p>
+<ol>
+<li>任务的性质：CPU 密集型任务，IO 密集型任务和混合型任务。</li>
+<li>任务的优先级：高，中和低。</li>
+<li>任务的执行时间：长，中和短。</li>
+<li>任务的依赖性：是否依赖其他系统资源，如数据库连接。</li>
+</ol>
+<p>任务性质不同的任务可以用不同规模的线程池分开处理。CPU 密集型任务配置尽可能小的线程，如配置 Ncpu+1 个线程的线程池。IO 密集型任务则由于线程并不是一直在执行任务，则配置尽可能多的线程，如 2*Ncpu。混合型的任务，如果可以拆分，则将其拆分成一个 CPU 密集型任务和一个 IO 密集型任务，只要这两个任务执行的时间相差不是太大，那么分解后执行的吞吐率要高于串行执行的吞吐率，如果这两个任务执行时间相差太大，则没必要进行分解。我们可以通过Runtime.getRuntime().availableProcessors() 方法获得当前设备的 CPU 个数。</p>
+<p>优先级不同的任务可以使用优先级队列 PriorityBlockingQueue 来处理。它可以让优先级高的任务先得到执行，需要注意的是如果一直有优先级高的任务提交到队列里，那么优先级低的任务可能永远不能执行。</p>
+<p>执行时间不同的任务可以交给不同规模的线程池来处理，或者也可以使用优先级队列，让执行时间短的任务先执行。</p>
+<p>依赖数据库连接池的任务，因为线程提交 SQL 后需要等待数据库返回结果，如果等待的时间越长 CPU 空闲时间就越长，那么线程数应该设置越大，这样才能更好的利用 CPU。</p>
+<p>建议使用有界队列，有界队列能增加系统的稳定性和预警能力，可以根据需要设大一点，比如几千。有一次我们组使用的后台任务线程池的队列和线程池全满了，不断的抛出抛弃任务的异常，通过排查发现是数据库出现了问题，导致执行 SQL变得非常缓慢，因为后台任务线程池里的任务全是需要向数据库查询和插入数据的，所以导致线程池里的工作线程全部阻塞住，任务积压在线程池里。如果当时我们设置成无界队列，线程池的队列就会越来越多，有可能会撑满内存，导致整个系统不可用，而不只是后台任务出现问题。当然我们的系统所有的任务是用的单独的服务器部署的，而我们使用不同规模的线程池跑不同类型的任务，但是出现这样问题时也会影响到其他任务。</p>
+<h4 id="线程池的监控"><a href="#线程池的监控" class="headerlink" title="线程池的监控"></a>线程池的监控</h4><p>通过线程池提供的参数进行监控。线程池里有一些属性在监控线程池的时候可以使用</p>
 <ul>
-<li>如果有任务进来，如果当前线程数量 &lt; core，则直接执行任务</li>
-<li>如果有任务进来，如果当前 core &lt; 线程数量 &lt; max ，则将任务添加到该队列中</li>
-<li>如果有任务进来，当前的队列已经满了，而且线程的数量 &lt; max，开启新线程执行任务</li>
-<li>如果有任务进来，当前的线程的数量 == max，就会执行异常策略</li>
+<li>taskCount：线程池需要执行的任务数量。</li>
+<li>completedTaskCount：线程池在运行过程中已完成的任务数量。小于或等于 taskCount。</li>
+<li>largestPoolSize：线程池曾经创建过的最大线程数量。通过这个数据可以知道线程池是否满过。如等于线程池的最大大小，则表示线程池曾经满了。</li>
+<li>getPoolSize：线程池的线程数量。如果线程池不销毁的话，池里的线程不会自动销毁，所以这个大小只增不减</li>
+<li>getActiveCount：获取活动的线程数。</li>
 </ul>
-<p>####线程池的使用</p>
+<p>通过扩展线程池进行监控。通过继承线程池并重写线程池的 beforeExecute，afterExecute和terminated 方法，我们可以在任务执行前，执行后和线程池关闭前干一些事情。如监控任务的平均执行时间，最大执行时间和最小执行时间等。这几个方法在线程池里是空方法。如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">beforeExecute</span><span class="params">(Thread t, Runnable r)</span> </span>&#123; &#125;</div></pre></td></tr></table></figure>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>线程池是一个重要的知识，还需要不断的练习。一个周末又过完了，期待着下一个周末的到来！</p>
 
           <br>
 <p>learnice</p>
