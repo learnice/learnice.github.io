@@ -1,0 +1,104 @@
+<html>
+  <head>
+    <title>Android 运行时权限踏坑 - learnice</title>
+    <link href='/images/fav.png' rel='shortcut icon'>
+<link href='/atom.xml' rel='alternate' type='application/rss+xml'>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/responsive.css">
+<script src="/js/jquery.js"></script>
+<script src="/js/basics.js"></script>
+<meta content='width=device-width, initial-scale=1.0, user-scalable=no' name='viewport'>
+<meta content='text/html; charset=utf-8' http-equiv='content-type'>
+
+
+  </head>
+  <body>
+    <header>
+  <a id='go-back-home' href='/'><img src='/images/scribble.png' alt='Home' width='66' height='66'></a>
+  <p>learnice</p>
+  <p>不忘初心</p>
+</header>
+
+    <div id='container'>
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+      <section class='paging'>
+  
+  
+    <div class='right'>
+      <a href='/2017/09/16/线程池的一点使用分析/'>
+        ›
+      </a>
+    </div>
+  
+</section>
+
+      <div class='content'>
+        <section class='post'>
+          <h1>
+            <div class='date'>2017-10-24</div>
+            Android 运行时权限踏坑
+          </h1>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>今天是 1024，据说是程序员日。好吧，并没有什么感觉。</p>
+<p>今天把玩公司的项目发现，进入了扫码界面没有索要权限就直接报出了相机打开失败的 Dialog，这太不应该了。在早早的 23 的时候就出了运行时获取权限了，到现在却还没有做好适配（默默的谴责了上一位程序猿）。既然他没有做好，那现在只能由我来做了，这一做不要紧整整踏了一下午坑。</p>
+<h3 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h3><p>下午一推坑的代码就不要放上来了，太乱了，所以重新建了一个简单的 Demo，主要尝试获取相机权限。</p>
+<p>manifest 添加权限</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.CAMERA"</span>/&gt;</span></div></pre></td></tr></table></figure>
+<p>activity_main 布局文件</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></div><div class="line">    <span class="attr">android:layout_width</span>=<span class="string">"match_parent"</span></div><div class="line">    <span class="attr">android:layout_height</span>=<span class="string">"match_parent"</span>&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">TextView</span></span></div><div class="line">        <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></div><div class="line">        <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></div><div class="line">        <span class="attr">android:text</span>=<span class="string">"Hello World!"</span></div><div class="line">        <span class="attr">android:layout_centerInParent</span>=<span class="string">"true"</span></div><div class="line">        <span class="attr">android:onClick</span>=<span class="string">"onClick"</span>/&gt;</div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>MainActivity.java 代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = MainActivity.class.getSimpleName();</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_main);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onResume</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onResume();</div><div class="line">        Log.e(TAG, <span class="string">"onResume"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onPause</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onPause();</div><div class="line">        Log.e(TAG,<span class="string">"onPause"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//点击事件的处理</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View view)</span> </span>&#123;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (PackageManager.PERMISSION_DENIED ==</div><div class="line">                ActivityCompat.checkSelfPermission(<span class="keyword">this</span>, Manifest.permission.CAMERA)) &#123;</div><div class="line">            <span class="keyword">if</span> (ActivityCompat.shouldShowRequestPermissionRationale(<span class="keyword">this</span>, Manifest.permission.CAMERA)) &#123;</div><div class="line">                showDialog(<span class="string">"现在需要相机权限"</span>, <span class="keyword">new</span> DialogInterface.OnClickListener() &#123;</div><div class="line">                    <span class="meta">@Override</span></div><div class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(DialogInterface dialog, <span class="keyword">int</span> which)</span> </span>&#123;</div><div class="line">                        ActivityCompat.requestPermissions(MainActivity.<span class="keyword">this</span>, <span class="keyword">new</span> String[]&#123;Manifest.permission.CAMERA&#125;, <span class="number">100</span>);</div><div class="line">                    &#125;</div><div class="line">                &#125;, <span class="keyword">new</span> DialogInterface.OnClickListener() &#123;</div><div class="line">                    <span class="meta">@Override</span></div><div class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(DialogInterface dialog, <span class="keyword">int</span> which)</span> </span>&#123;</div><div class="line">                        showToast(<span class="string">"dialog 不给权限"</span>);</div><div class="line">                    &#125;</div><div class="line">                &#125;);</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                ActivityCompat.requestPermissions(<span class="keyword">this</span>, <span class="keyword">new</span> String[]&#123;Manifest.permission.CAMERA&#125;, <span class="number">100</span>);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onRequestPermissionsResult</span><span class="params">(<span class="keyword">int</span> requestCode, @NonNull String[] permissions, @NonNull <span class="keyword">int</span>[] grantResults)</span> </span>&#123;</div><div class="line">        <span class="keyword">switch</span> (requestCode) &#123;</div><div class="line">            <span class="keyword">case</span> <span class="number">100</span>:</div><div class="line">                <span class="keyword">if</span> (grantResults[<span class="number">0</span>] == PackageManager.PERMISSION_GRANTED) &#123;</div><div class="line">                    showToast(<span class="string">"权限授予了"</span>);</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    <span class="keyword">if</span> (ActivityCompat.shouldShowRequestPermissionRationale(<span class="keyword">this</span>, Manifest.permission.CAMERA)) &#123;</div><div class="line">                        showToast(<span class="string">"用户点击了拒绝"</span>);</div><div class="line">                    &#125; <span class="keyword">else</span> &#123;</div><div class="line">                        showToast(<span class="string">"点击了不再提示"</span>);</div><div class="line">                        Intent intent = <span class="keyword">new</span> Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);</div><div class="line">                        Uri uri = Uri.fromParts(<span class="string">"package"</span>, getApplicationContext().getPackageName(), <span class="keyword">null</span>);</div><div class="line">                        intent.setData(uri);</div><div class="line">                        startActivity(intent);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">super</span>.onRequestPermissionsResult(requestCode, permissions, grantResults);</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">showDialog</span><span class="params">(String msg, DialogInterface.OnClickListener pos, DialogInterface.OnClickListener nega)</span> </span>&#123;</div><div class="line">        <span class="keyword">new</span> AlertDialog.Builder(<span class="keyword">this</span>)</div><div class="line">                .setMessage(msg)</div><div class="line">                .setPositiveButton(<span class="string">"确定"</span>, pos)</div><div class="line">                .setNegativeButton(<span class="string">"取消"</span>, nega)</div><div class="line">                .setCancelable(<span class="keyword">false</span>)</div><div class="line">                .create()</div><div class="line">                .show();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">showToast</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">        Toast.makeText(<span class="keyword">this</span>, msg, Toast.LENGTH_SHORT).show();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>代码都很简单，主要就是通过点击判断当前是否已经授予了 Manifest.permission.CAMERA 权限，如果没有就要去申请权限，然后处理结果。</p>
+<p><strong>但是</strong>里面的几个函数还是要注意一下它的调用和回调的时机：</p>
+<ol>
+<li>checkSelfPermission 顾名思义就是检车一下当前是否被授予了这个权限，返回值是 int。如果已经被授予这个权限返回 PackageManager.PERMISSION_GRANTED，否者返回 PackageManager#PERMISSION_DENIED；</li>
+<li>requestPermissions 这个向系统请求权限，第一个参数是 Context，第二个参数是要请求权限的 String[] ,第三个参数在 SDK 中是这么解释的  <strong>Application specific request code to match with a result  reported to {@link OnRequestPermissionsResultCallback#onRequestPermissionsResult(int, String[], int[])}. Should be &gt;= 0.</strong> 意思就是自己指定一个数字，作为 onRequestPermissionsResult 参数返回，应该大于 0；</li>
+<li>onRequestPermissionsResult 这个函数用来处理函数返回的结果，当系统弹出权限框，用户操作完之后这个函数会被调用。第一个参数就是 <strong>2</strong> 提到的那个参数，第二的参数是使用了 <strong>requestCode</strong> 所请求的权限，这里注意这个数组和请求权限的 String[] 是对应的，第三个参数所请求权限的授予情况，同样和请求权限的 String[] 是对应的；</li>
+<li>shouldShowRequestPermissionRationale 这个函数的用途是告诉开发者是否要告诉用户申请该权限的缘由。第一个参数是 Context，第二个参数是要请求的权限，返回值 boolean。当该权限首次申请返回的是 false ，当用户点击拒绝后（没有勾上不再提示）再次调用返回的是 true ，当用用户勾上不再提示并且拒绝后调用该函数返回 false 。</li>
+</ol>
+<p>了解了以上函数的用法就可知道一些用户操作的结果，比如在 onRequestPermissionsResult 中在权限没有授予的情况下调用 shouldShowRequestPermissionRationale 就可以判断出是用户点了拒绝，还是勾上了不再提示然后点了拒绝。如果是后者我们就可以做出提示让用户在设置中打开权限。在以上的代码中都有实现。</p>
+<h4 id="强调"><a href="#强调" class="headerlink" title="强调"></a>强调</h4><p>在 requestPermissions 和 onRequestPermissionsResult 之后会分别调用到 onPause 和 onResume ，我猜想应该是两者之后做了回调，应该不是系统权限授予弹窗导致的生命周期的切换 <strong>这个还有待研究</strong>  。</p>
+<p>不要小看这个今天的坑主要是在这个上面，由于一系列的原因我不得不把检查权限的代码放到了 onResume 里面，然后在 onRequestPermissionsResult 又会会掉到 onResume ，这样就形成了 —-调用，导致出现了 onResume 一直被调用的错觉。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这边文章从 1024 跨越到了 1025 ！</p>
+<p>希望自己能回到以前的状态不要在堕落下去。</p>
+
+          <br>
+<p>learnice</p>
+<p><img src='/images/scribble3.png' alt='scribble'  width='33' height='33'></p>
+
+        </section>
+      </div>
+      
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+    </div>
+    <footer>
+  <span class='muted'>&copy; learnice. All Rights Reserved.</span><br>
+  <a href='https://github.com/saintwinkle/hexo-theme-scribble' class='muted'>theme</a>
+  <br>
+  <br>
+</footer>
+
+  </body>
+</html>
