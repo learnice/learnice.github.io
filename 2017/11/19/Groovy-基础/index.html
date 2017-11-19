@@ -1,0 +1,137 @@
+<html>
+  <head>
+    <title>Groovy 基础 - learnice</title>
+    <link href='/images/fav.png' rel='shortcut icon'>
+<link href='/atom.xml' rel='alternate' type='application/rss+xml'>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/responsive.css">
+<script src="/js/jquery.js"></script>
+<script src="/js/basics.js"></script>
+<meta content='width=device-width, initial-scale=1.0, user-scalable=no' name='viewport'>
+<meta content='text/html; charset=utf-8' http-equiv='content-type'>
+
+
+  </head>
+  <body>
+    <header>
+  <a id='go-back-home' href='/'><img src='/images/scribble.png' alt='Home' width='66' height='66'></a>
+  <p>learnice</p>
+  <p>不忘初心</p>
+</header>
+
+    <div id='container'>
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+      <section class='paging'>
+  
+  
+    <div class='right'>
+      <a href='/2017/11/19/Android-Gradle-初识/'>
+        ›
+      </a>
+    </div>
+  
+</section>
+
+      <div class='content'>
+        <section class='post'>
+          <h1>
+            <div class='date'>2017-11-19</div>
+            Groovy 基础
+          </h1>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>Gradle 是一门 DSL，它是基于 Groovy 的，所以学习 Groovy 语法还是必须的</p>
+<h3 id="Groovy-基础"><a href="#Groovy-基础" class="headerlink" title="Groovy 基础"></a>Groovy 基础</h3><p><strong>字符串</strong></p>
+<p>在 Groovy 中单引号和双引号都可以表示一个字符串常量，不同的是单引号是纯粹的字符串常量，双引号可以对里面的表达式做运算</p>
+<p>直接上代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">task printStringClass&#123;</div><div class="line">        def str1 = <span class="string">'单引号'</span></div><div class="line"></div><div class="line">        println <span class="string">"数据类型$&#123;str1.getClass().name&#125;"</span></div><div class="line">        println <span class="string">'单引号打印$&#123;str1&#125;'</span></div><div class="line">        println <span class="string">"双引号打印$&#123;str1&#125;"</span></div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>输出的结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">数据类型java.lang.String</div><div class="line">单引号打印$&#123;str1&#125;</div><div class="line">双引号打印单引号</div></pre></td></tr></table></figure>
+<p>可以看出单引号中的 ${} 被作为了一个字符串，但是双引号把他看作了一个表达式</p>
+<p><strong>集合 List</strong></p>
+<p>直接上代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">task printList&#123;</div><div class="line">        def list = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>]</div><div class="line">        println <span class="string">"数据类型：$&#123;list.getClass().name&#125;"</span></div><div class="line">        println <span class="string">"第1个数据：$&#123;list[1]&#125;"</span></div><div class="line">        println <span class="string">"第-1个数据$&#123;list[-1]&#125;"</span>   <span class="comment">//倒数第一个数据</span></div><div class="line">        println <span class="string">"第-2个数据$&#123;list[-2]&#125;"</span>   <span class="comment">//倒数第二个数据</span></div><div class="line">        println <span class="string">"第1..2个数据$&#123;list[1..2]&#125;"</span>  <span class="comment">//第1--2  数据</span></div><div class="line">        println <span class="string">"list数量：$&#123;list.size&#125;"</span></div><div class="line">        list[<span class="number">100</span>] = <span class="number">101</span></div><div class="line">        println <span class="string">"list数量：$&#123;list.size&#125;"</span></div><div class="line">        <span class="comment">//      list.each&#123;</span></div><div class="line">        <span class="comment">//              println it</span></div><div class="line">        <span class="comment">//      &#125;</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>输出的结果</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">数据类型：java.util.ArrayList</div><div class="line">第<span class="number">1</span>个数据：<span class="number">2</span></div><div class="line">第-<span class="number">1</span>个数据<span class="number">5</span></div><div class="line">第-<span class="number">2</span>个数据<span class="number">4</span></div><div class="line">第<span class="number">1</span>..<span class="number">2</span>个数据[<span class="number">2</span>, <span class="number">3</span>]</div><div class="line">list数量：<span class="number">5</span></div><div class="line">list数量：<span class="number">101</span></div></pre></td></tr></table></figure>
+<p>可以看到这是个 ArrayList 对象，其实就是个数组，获取其中数据的方法和数组类似，其中可以直接置负数，负数代表倒数第几个数。如果置入的索引大于当前的索引大小，会对 ArrayList 扩展，貌似就没有了索引越界的问题了</p>
+<p><strong>Map</strong></p>
+<p>map 的初始话形式可以和 List 一样，直接上代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">task printMap &#123;</div><div class="line">        def map = [<span class="string">'width'</span>:<span class="number">1080</span>,<span class="string">'height'</span>:<span class="number">1920</span>]</div><div class="line">        println <span class="string">"数据类型: $&#123;map.getClass().name&#125;"</span></div><div class="line">        println <span class="string">"width: $&#123;map.width&#125;"</span></div><div class="line">        println <span class="string">"height: $&#123;map["</span>height<span class="string">"]&#125;"</span></div><div class="line"></div><div class="line">        map.each&#123;</div><div class="line">        println <span class="string">"Key: $&#123;it.key&#125;---- Value:$&#123;it.value&#125;"</span></div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>输出的结果是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">数据类型: java.util.LinkedHashMap</div><div class="line">width: <span class="number">1080</span></div><div class="line">height: <span class="number">1920</span></div><div class="line">Key: width---- Value:<span class="number">1080</span></div><div class="line">Key: height---- Value:<span class="number">1920</span></div></pre></td></tr></table></figure>
+<p>其中 each 方法接收的是一个闭包参数，这个方法 list 同样有</p>
+<p><strong>方法</strong></p>
+<p>上代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">task printMethod&#123;</div><div class="line">        def a = <span class="number">1</span></div><div class="line">        def b = <span class="number">2</span></div><div class="line">        def c = methodAdd a,b  <span class="comment">//可以不加括号</span></div><div class="line">        println <span class="string">"$&#123;a&#125;+$&#123;b&#125;=$&#123;c&#125;"</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function">def <span class="title">methodAdd</span><span class="params">(a , b)</span></span>&#123;  <span class="comment">//可以不指定参数类型</span></div><div class="line">        a + b</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>输出为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>+<span class="number">2</span>=<span class="number">3</span></div></pre></td></tr></table></figure>
+<p>方法的定义的形参可以不用指定参数类型</p>
+<p>调用方法的时候可以不用增加括号</p>
+<p>可以不写 return ，Groovy 把执行过程中的最后一句代码作为返回值</p>
+<p>Groovy 中支持动态类型，即定义变量的时候可以不指定其类型。Groov y中，变量定义可以使用关键字 def</p>
+<p><strong>JavaBean</strong></p>
+<p>在 Java 中为了访问和修改 JavaBean 的属性，需要生成 getter/setter 方法，在 Groovy 中大可不必</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">task printJavaBean&#123;</div><div class="line">        def person = <span class="keyword">new</span> Person()</div><div class="line">        mPrintln person.name</div><div class="line">        person.name = <span class="string">'learnice'</span></div><div class="line">        mPrintln person.name</div><div class="line">        mPrintln person.age</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span></span>&#123;</div><div class="line">        <span class="function"><span class="keyword">private</span> String name</span></div><div class="line"></div><div class="line">        <span class="keyword">private</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span>&#123;</div><div class="line">                <span class="number">18</span></div><div class="line">        &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">// print 方法</span></div><div class="line"><span class="function">def <span class="title">mPrintln</span><span class="params">(str)</span></span>&#123;</div><div class="line">        println <span class="string">"print----$&#123;str&#125;"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>数据结果</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">print----<span class="keyword">null</span></div><div class="line">print----learnice</div><div class="line">print----<span class="number">18</span></div></pre></td></tr></table></figure>
+<p>name 并没有 getter/setter 方法，但是我们可以访问它，这是因为 Groovy 帮我做了一些事情（帮我们生成了相应的 getter/setter 方法）</p>
+<p>可以看到我们并没有定义一个 age 属性，但是可以访问它，可以通过 person.age 获取它的值，但是不能改变它的值，因为在这种情况下 age 是一个只读的属性</p>
+<p><strong>闭包</strong></p>
+<p>一段被花括号包围的代码就是代码块，也就是闭包。Groovy 允许其作为参数传递，以 each 方法为例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//闭包写法</span></div><div class="line">list.each(&#123;println it&#125;)</div><div class="line"><span class="comment">//groovy 规定 如果方法的最后一个参数是闭包，可以放到方法外面</span></div><div class="line">list.each()&#123;</div><div class="line">    println it</div><div class="line">&#125;</div><div class="line"><span class="comment">//方法的括号可以省略</span></div><div class="line">list.each&#123;</div><div class="line">    println it</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>闭包单个参数和多个参数的写法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">task helloClosure&#123;</div><div class="line">        <span class="comment">//单个参数</span></div><div class="line">        customEach&#123;</div><div class="line">                println it</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">//多个参数</span></div><div class="line">        customEachMap&#123;</div><div class="line">                K,V -&gt;</div><div class="line">                println <span class="string">"key=$&#123;K&#125;,value=$&#123;V&#125;"</span></div><div class="line">        &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//参数闭包是单个参数</span></div><div class="line"><span class="function">def <span class="title">customEach</span><span class="params">(closure)</span></span>&#123;</div><div class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i in <span class="number">1</span>..<span class="number">10</span>)&#123;</div><div class="line">                closure i</div><div class="line">        &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 参数闭包是两个参数</span></div><div class="line"><span class="function">def <span class="title">customEachMap</span><span class="params">(closure)</span></span>&#123;</div><div class="line">        def map = [<span class="string">'name'</span>:<span class="string">'learnice'</span>,<span class="string">'age'</span>:<span class="number">18</span>]</div><div class="line">        map.each&#123;</div><div class="line">                closure it.key,it.value</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>输出结果</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span></div><div class="line"><span class="number">2</span></div><div class="line"><span class="number">3</span></div><div class="line"><span class="number">4</span></div><div class="line"><span class="number">5</span></div><div class="line"><span class="number">6</span></div><div class="line"><span class="number">7</span></div><div class="line"><span class="number">8</span></div><div class="line"><span class="number">9</span></div><div class="line"><span class="number">10</span></div><div class="line">key=name,value=learnice</div><div class="line">key=age,value=<span class="number">18</span></div></pre></td></tr></table></figure>
+<p><strong>闭包委托</strong></p>
+<p>Groovy 闭包的强大之处在于它支持闭包方法的委托。Groovy 的闭包有 thisObject、owner、delegate 三个属性，当你在闭包内调用方法时，由它们来确定使用那个对象来处理。默认的情况下 delegate 和 owner 是相等的，但是 delegate 是可以被修改的，这个功能是非常强大的，Gradle 中的闭包的很多功能都是通过修改 delegate 实现的</p>
+<p>上代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">task helloDelegate&#123;</div><div class="line">        new Delegate().test&#123;</div><div class="line">                println &quot;thisObject: $&#123;thisObject.getClass() &#125;&quot;</div><div class="line">                println &quot;owner: $&#123;owner.getClass() &#125;&quot;</div><div class="line">                println &quot;delegate: $&#123;delegate.getClass() &#125;&quot;</div><div class="line">                method1()</div><div class="line">                it.method1()</div><div class="line">        &#125;</div><div class="line">&#125;</div><div class="line">def method1()&#123;</div><div class="line">        println &quot;Context this: $&#123;this.getClass()&#125; in root&quot;</div><div class="line">&#125;</div><div class="line">class Delegate&#123;</div><div class="line">        def method1()&#123;</div><div class="line">                println &quot;Delegate.this: $&#123;this.getClass()&#125; in Delegate&quot;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        def test(closure)&#123;</div><div class="line">                closure this</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>输出的结果</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">thisObject: class build_ax5pfbo8op0trezxcggnrwk93</div><div class="line">owner: class build_ax5pfbo8op0trezxcggnrwk93$_run_closure8</div><div class="line">delegate: class build_ax5pfbo8op0trezxcggnrwk93$_run_closure8</div><div class="line">Context this: class build_ax5pfbo8op0trezxcggnrwk93 in root</div><div class="line">Delegate.this: class Delegate in Delegate</div></pre></td></tr></table></figure>
+<p>可以发现，thisObject 的优先级最高，默认情况下优先使用 thisObject 来处理闭包中调用的方法。这个 thisObject 就是这个构建脚本的上下文，和 this 对象是相等的</p>
+<p>继续上代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">task configClosure&#123;</div><div class="line">        person &#123;</div><div class="line">                name = <span class="string">'learnice'</span></div><div class="line">                age = <span class="number">18</span></div><div class="line">                outPerson()</div><div class="line">        &#125;</div><div class="line">&#125;</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person2</span></span>&#123;</div><div class="line">        <span class="function">String name</span></div><div class="line">        <span class="keyword">int</span> age</div><div class="line">        def <span class="title">outPerson</span><span class="params">()</span>&#123;</div><div class="line">                println <span class="string">"name : $&#123;name&#125;, age: $&#123;age&#125;"</span></div><div class="line">        &#125;</div><div class="line">&#125;</div><div class="line"><span class="function">def <span class="title">person</span><span class="params">(Closure&lt;Person&gt; closure)</span></span>&#123;</div><div class="line">        Person2 p = <span class="keyword">new</span> Person2()</div><div class="line">        closure.delegate = p     <span class="comment">//设置委托对象为 当前的 Person 实例</span></div><div class="line">        closure.setResolveStrategy(Closure.DELEGATE_FIRST)  <span class="comment">//委托模式优先</span></div><div class="line">        closure p</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>输出的结果为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">name : learnice, age: <span class="number">18</span></div></pre></td></tr></table></figure>
+<p>设置它的委托对象 delagate 为 Person2对象  ，并且设置委托为优先，在闭包中直接操作的就是 Person2 对象</p>
+
+          <br>
+<p>learnice</p>
+<p><img src='/images/scribble3.png' alt='scribble'  width='33' height='33'></p>
+
+        </section>
+      </div>
+      
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+    </div>
+    <footer>
+  <span class='muted'>&copy; learnice. All Rights Reserved.</span><br>
+  <a href='https://github.com/saintwinkle/hexo-theme-scribble' class='muted'>theme</a>
+  <br>
+  <br>
+</footer>
+
+  </body>
+</html>
