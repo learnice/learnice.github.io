@@ -1,0 +1,153 @@
+<html>
+  <head>
+    <title>Gradle 任务 - learnice</title>
+    <link href='/images/fav.png' rel='shortcut icon'>
+<link href='/atom.xml' rel='alternate' type='application/rss+xml'>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/responsive.css">
+<script src="/js/jquery.js"></script>
+<script src="/js/basics.js"></script>
+<meta content='width=device-width, initial-scale=1.0, user-scalable=no' name='viewport'>
+<meta content='text/html; charset=utf-8' http-equiv='content-type'>
+
+
+  </head>
+  <body>
+    <header>
+  <a id='go-back-home' href='/'><img src='/images/scribble.png' alt='Home' width='66' height='66'></a>
+  <p>learnice</p>
+  <p>不忘初心</p>
+</header>
+
+    <div id='container'>
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+      <section class='paging'>
+  
+  
+    <div class='right'>
+      <a href='/2017/11/21/Gradle-构建脚本基础/'>
+        ›
+      </a>
+    </div>
+  
+</section>
+
+      <div class='content'>
+        <section class='post'>
+          <h1>
+            <div class='date'>2017-11-23</div>
+            Gradle 任务
+          </h1>
+          <p><strong>Gradle 多种创建任务的方式</strong></p>
+<p>Task 有很多种创建方式，Project 给我们提供了很多快捷的方法，TaskContainner 提供了一些 create 方法，一般都有一下几种：</p>
+<p>第一种直接以任务名字创建任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 以任务名字 创建任务</span></div><div class="line">def Task createTask1 = task createTask1</div><div class="line">createTask1.doLast&#123;</div><div class="line">        println <span class="string">'create task1'</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>其原型就是 Task task(String name)</p>
+<p>第二种是一个任务名字 + 对任务配置的 Map 对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 以任务名字 + 一个对该任务配置的 map 创建任务</span></div><div class="line">def Task createTask2 = task(createTask2,group:BasePlugin.BUILD_GROUP)</div><div class="line">createTask2.doLast&#123;</div><div class="line">        println <span class="string">"任务分组：$&#123;createTask2.group&#125;"</span></div><div class="line">&#125;</div><div class="line">def Task createTask3 = task(createTask3,description : <span class="string">'okhttp'</span>)</div><div class="line">createTask3.doLast&#123;</div><div class="line">        println <span class="string">"任务分组：$&#123;createTask3.description&#125;"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>比第一种方式多了一个参数而已，而那个参数是任务的配置参数</p>
+<p>基本的配置项如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">配置项</th>
+<th style="text-align:center">描述</th>
+<th style="text-align:center">默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">type</td>
+<td style="text-align:center">基于配置项的 Task 创建，类似于继承</td>
+<td style="text-align:center">DefaultTask</td>
+</tr>
+<tr>
+<td style="text-align:center">overwrite</td>
+<td style="text-align:center">是否替换已存在的 task，这个和 type 配合使用</td>
+<td style="text-align:center">false</td>
+</tr>
+<tr>
+<td style="text-align:center">dependsOn</td>
+<td style="text-align:center">配置任务依赖</td>
+<td style="text-align:center">[]</td>
+</tr>
+<tr>
+<td style="text-align:center">action</td>
+<td style="text-align:center">添加到任务的一个 action 或者是闭包</td>
+<td style="text-align:center">null</td>
+</tr>
+<tr>
+<td style="text-align:center">description</td>
+<td style="text-align:center">配置任务的描述</td>
+<td style="text-align:center">null</td>
+</tr>
+<tr>
+<td style="text-align:center">group</td>
+<td style="text-align:center">配置任务的分组</td>
+<td style="text-align:center">null</td>
+</tr>
+</tbody>
+</table>
+<p>第三种是任务名字 + 闭包</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 任务名字 + 闭包</span></div><div class="line">task createTask4 &#123;</div><div class="line">        description <span class="string">'createTask4的任务说明'</span></div><div class="line">        println <span class="string">'方法原型是 名字+闭包'</span></div><div class="line">        println <span class="string">"任务描述 $&#123;description&#125;"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>闭包里委托的对象就是 task ，所以可以使用 task 的对象的任何方法、属性等信息配置。</p>
+<p>TaskContainner 创建任务的方式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//takscontainner 创建</span></div><div class="line">tasks.create (<span class="string">"createTask5"</span>)&#123;</div><div class="line">        description <span class="string">'TaskContainner 创建task'</span></div><div class="line">        doLast&#123;</div><div class="line">                println <span class="string">"$&#123;description&#125;"</span></div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>tasks 是 Project 属性，它的类型是 TaskContainner ，可以使用它来创建任务。（最后一个参数是闭包，可以放到括号外面）</p>
+<p>原型是 Task create(String name, Closure configureClosure) throws InvalidUserDataException</p>
+<p><strong>Gradle 多种方式访问任务</strong></p>
+<p>我们创建的任务都会作为 Project 的一个属性，属性名就是任务名，所以我们可以通过任务名称直接访问和操作任务</p>
+<p>任务都是由 TaskContainner 创建的，TaskContainner 就是我们创建任务的集合，在 Project 中我们可以使用 taks 属性直接访问 TaskContainner ，所以我们可以通过集合的方式来访问 task</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//通过集合访问 task</span></div><div class="line">task createTask6</div><div class="line">tasks[<span class="string">'createTask6'</span>].doLast&#123;</div><div class="line">  println <span class="string">'createTask6.doLast'</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>[] 是 groovy 的一个操作符，操作符都有对应的方法重载，a[b] 对应的是 a.getAt(b) 这个方法，tasks[‘createTask6’] 对应的就是 tasks.getAt(‘createTask6’) ,最终调用的方法是 findByName(String name) 这个方法。</p>
+<p>访问的方式有两种，一种是通过路径访问，一种是通过名称访问，它们各自都有 get 和find 方法。但是，如果找不到的话，get 方法爆出异常，find 方法会返回 null</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//访问任务的方式</span></div><div class="line">task createTask7</div><div class="line">tasks[<span class="string">'createTask7'</span>].doLast&#123;</div><div class="line">        println tasks.findByPath (<span class="string">':createTask7'</span>)</div><div class="line">        println tasks.getByPath (<span class="string">':createTask7'</span>)</div><div class="line">        println tasks.findByPath (<span class="string">'djjjdj'</span>)</div><div class="line">        println <span class="string">'----------下面是通过name访问'</span></div><div class="line">        println tasks.findByName (<span class="string">'createTask7'</span>)</div><div class="line">        println tasks.getByName (<span class="string">'createTask7'</span>)</div><div class="line">        println tasks.getByName (<span class="string">'skfhks'</span>)  <span class="comment">//这行会报错</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>任务分组和描述</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//任务的分组描述</span></div><div class="line">Task createTask8 = task createTask8</div><div class="line">createTask8.group = BasePlugin.BUILD_GROUP</div><div class="line">createTask8.description = <span class="string">'这是 createTask8 的描述'</span></div><div class="line">createTask8.doLast&#123;</div><div class="line">        println <span class="string">"group:$&#123;group&#125;---description:$&#123;description&#125;"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这样当我们 ./gradlew tasks 查看任务信息的时候，就能看到该任务已经被归类到 Build tasks 分类里，在 Android Studio 中直接在 gradlw projects 中可以看到分组情况</p>
+<p><strong>&lt;&lt; 操作符是 task 上 doLast 方法的段标记形式</strong></p>
+<p><strong>任务的执行分析</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// dofirst doself  dolast</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">CustomTask</span> <span class="keyword">extends</span> <span class="title">DefaultTask</span></span>&#123;</div><div class="line">        <span class="meta">@TaskAction</span></div><div class="line">        <span class="function">def <span class="title">doSelf</span><span class="params">()</span></span>&#123;</div><div class="line">                println<span class="string">'task 本体'</span></div><div class="line">        &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">def Task myTask = task (myTask,type:CustomTask)</div><div class="line">myTask.doFirst&#123;</div><div class="line">        println <span class="string">'doFirst task本体执行之前'</span></div><div class="line">&#125;</div><div class="line">myTask.doLast&#123;</div><div class="line">        println <span class="string">'doLast task本体执行之后'</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>执行任务的时候，就是在遍历执行 actions List。要达到 doFirst 、doSelf 、doLast 顺序的效果，就必须要吧 doFirst 放到 actions List 的最前面，把 doLast 放到 acitons List 的最后面</p>
+<p><strong>任务排序</strong></p>
+
+          <br>
+<p>learnice</p>
+<p><img src='/images/scribble3.png' alt='scribble'  width='33' height='33'></p>
+
+        </section>
+      </div>
+      
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+    </div>
+    <footer>
+  <span class='muted'>learnice</span><br>
+  <br>
+  <br>
+</footer>
+
+  </body>
+</html>
