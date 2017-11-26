@@ -1,0 +1,117 @@
+<html>
+  <head>
+    <title>Gradle 插件 - learnice</title>
+    <link href='/images/fav.png' rel='shortcut icon'>
+<link href='/atom.xml' rel='alternate' type='application/rss+xml'>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/responsive.css">
+<script src="/js/jquery.js"></script>
+<script src="/js/basics.js"></script>
+<meta content='width=device-width, initial-scale=1.0, user-scalable=no' name='viewport'>
+<meta content='text/html; charset=utf-8' http-equiv='content-type'>
+
+
+  </head>
+  <body>
+    <header>
+  <a id='go-back-home' href='/'><img src='/images/scribble.png' alt='Home' width='66' height='66'></a>
+  <p>learnice</p>
+  <p>不忘初心</p>
+</header>
+
+    <div id='container'>
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+      <section class='paging'>
+  
+  
+    <div class='right'>
+      <a href='/2017/11/23/Gradle-任务/'>
+        ›
+      </a>
+    </div>
+  
+</section>
+
+      <div class='content'>
+        <section class='post'>
+          <h1>
+            <div class='date'>2017-11-26</div>
+            Gradle 插件
+          </h1>
+          <p><strong>插件的作用</strong></p>
+<ol>
+<li>可以添加任务到项目中，比如测试、编译、打包</li>
+<li>可以添加依赖配置到项目中</li>
+<li>可以项目中现有的对象类型添加新的扩展属性，方法等，比如 android {} 这个配置块，就是 Android Gradle 插件为 Project 对象添加的一个扩展</li>
+<li>可以对项目进行一些约定，比如  Java 插件约定 src/main/java 目录下就是我们源代码的存放位置</li>
+</ol>
+<p><strong>应用一个插件</strong></p>
+<p>应用二进制插件</p>
+<p>二进制插件实现了 org.gradle.api.Plugin ,它们可以有 plugin id</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apply <span class="string">plugin:</span><span class="string">'java'</span></div></pre></td></tr></table></figure>
+<p>上面的代码就是将 Java 插件应用到项目中，其中 ‘Java’ 就是 Java 插件的 plugin id，它是唯一的。这里的 java 插件对应的类型是 org.gradle.api.plugin.JavaPlugin ，所以同个这个类型也可以应用插件</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apply <span class="string">plugin:</span>org.gradle.api.plugin.JavaPlugin</div></pre></td></tr></table></figure>
+<p>因为 org.gradle.api.plugin 是默认导入的，所以也可以写成</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apply <span class="string">plugin:</span>JavaPlugin</div></pre></td></tr></table></figure>
+<p>二进制插件一般都是被打包在一个 jar 里独立发布，比如我们自定义的插件，在发布的时候我们也可以为其指定 plugin id，这个plugin id 最好是一个全限定名，防止重复</p>
+<p>应用脚本插件</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//version.gradle 文件</span></div><div class="line">ext&#123;</div><div class="line">        versionName = <span class="string">'1.0.0'</span></div><div class="line">        versionCode = <span class="number">1</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//build.gradle 文件</span></div><div class="line">apply <span class="string">from:</span><span class="string">'version.gradle'</span></div><div class="line"></div><div class="line">task pluginTask1 &lt;&lt; &#123;</div><div class="line">        println <span class="string">"版本是$&#123;versionName&#125;版本号是$&#123;versionCode&#125;"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个其实就是把脚本文件加载进来和二进制插件不同的是它使用的是 from 关键字，后面跟着一个脚本文件，这个文件可以是本地的也可以是网络存在的，如果是网络的就要使用 url</p>
+<p>使用这个特性，我们可以把庞大的脚本文件，进行分块、分段整理、拆分成一个个公用的、职责分明的文件，然后使用 apply from 来引用它们。</p>
+<p>apply 的其他用法</p>
+<p>Project.apply() 方法有三个使用方式</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">void</span> apply(Map&lt;String, ?&gt; options);</div><div class="line">void apply(Closure closure);</div><div class="line">void apply(Action&lt;? super ObjectConfigurationAction&gt; action);</div></pre></td></tr></table></figure>
+<p>第二种闭包的方式如下</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">apply&#123;</div><div class="line">    plugin<span class="string">'java'</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该闭包用来配置一个 ObjectConfigurationAction 对象，所以可以在闭包中使用 ObjectConfigurationAction 的方法、属性等进行配置。</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">apply(<span class="keyword">new</span> Action&lt;ObjectConfigurationAction &gt;()&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">  <span class="keyword">void</span> execute(ObjectConfigurationAction objectConfigurationAction )&#123;</div><div class="line">      objectConfigurationAction.plugin(<span class="string">'java'</span>)</div><div class="line">  &#125;</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p>Action 的方式就是要我们 new 一个 Action，然后在 execute 方法里面进行配置</p>
+<p><strong>应用第三方发布的插件</strong></p>
+<p>我们在应用第三方发布的 jar 二进制插件时，必须要在 buildscript{} 里配置其 classpath 才能使用。比如我们的 Android Gradle 插件就属于 Android 发布的第三方插件，如果要使用我们要进行配置</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">buildscript &#123;</div><div class="line">    repositories &#123;</div><div class="line">        jcenter()</div><div class="line">    &#125;</div><div class="line">    dependencies &#123;</div><div class="line">        classpath <span class="string">'com.android.tools.build:gradle:2.3.2'</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>buildscript{} 块是一个在构建项目之前，为项目进行前期准备和初始化相关配置依赖的地方，配置好所需依赖，就可以应用插件了</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apply <span class="string">plugin:</span> <span class="string">'com.android.application'</span></div></pre></td></tr></table></figure>
+<p>更多好用的插件可以在 <a href="https://plugins.gradle.org/" target="_blank" rel="external">https://plugins.gradle.org/</a> 上找到</p>
+<p><strong>自定义插件</strong></p>
+
+          <br>
+<p>learnice</p>
+<p><img src='/images/scribble3.png' alt='scribble'  width='33' height='33'></p>
+
+        </section>
+      </div>
+      
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+    </div>
+    <footer>
+  <span class='muted'>learnice</span><br>
+  <br>
+  <br>
+</footer>
+
+  </body>
+</html>
