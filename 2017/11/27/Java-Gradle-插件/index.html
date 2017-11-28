@@ -73,6 +73,311 @@
 <figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">sourceSets&#123;</div><div class="line">  main&#123;</div><div class="line">    java&#123;</div><div class="line">        srcDir <span class="string">'src/java'</span></div><div class="line">    &#125;</div><div class="line">    resources&#123;</div><div class="line">        srcDir <span class="string">'src/resources'</span></div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>这样的话 java 文件的目录就换到了 src/java 目录下了</p>
 <p><strong>配置第三方依赖</strong></p>
+<p>首先我们要告诉 Gradle 我们要用什么类型的仓库，仓库的位置</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">repositories &#123;</div><div class="line">        mavenCentral()</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>上面配置了一个 maven 中心库，告诉 Gradle 可以在 Maven 中心库中去搜寻我们依赖的 jar。当然我们也可以从 jcenter 库、ivy 库、本地 maven 库 MavenLocal、自己搭建的 Maven 私服库中搜寻，甚至我们本地配置的文件夹也可以作为一个仓库。</p>
+<p>有了仓库，需要告诉 Gradle 我们需要什么了？</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">dependencies&#123;</div><div class="line">	compile <span class="string">group:</span><span class="string">'com.squareup.okhttp'</span>,<span class="string">name:</span><span class="string">'okhttp'</span>,<span class="string">version:</span><span class="string">'3.0.1'</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上面依赖了 okhttp 依赖，其中 compile 是依赖名称，group、name、version 分别代表 Maven 中的 GAV（groupid、artifactid、version），这个是 maven 的重要组成文件，三个属性标记一个唯一的构件。也可以把属性名称去掉直接写成下面的形式</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">dependencies&#123;</div><div class="line">	compile <span class="string">'com.squareup.okhttp'</span>:<span class="string">'okhttp'</span>:<span class="string">'3.0.1'</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上面提到的 compile 是一个编译时依赖，Gradle 还为我们提供了其他形式的依赖，例如编译时依赖 testCompile 。其它的依赖如下表：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">名称</th>
+<th style="text-align:center">继承自</th>
+<th style="text-align:center">被那个任务使用</th>
+<th style="text-align:center">意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">compile</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">compileJava</td>
+<td style="text-align:center">编译时依赖</td>
+</tr>
+<tr>
+<td style="text-align:center">runtime</td>
+<td style="text-align:center">compile</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">运行时依赖</td>
+</tr>
+<tr>
+<td style="text-align:center">testCompile</td>
+<td style="text-align:center">compile</td>
+<td style="text-align:center">compileTestJava</td>
+<td style="text-align:center">编译测试用例时依赖</td>
+</tr>
+<tr>
+<td style="text-align:center">testRuntime</td>
+<td style="text-align:center">runtime，testCompile</td>
+<td style="text-align:center">test</td>
+<td style="text-align:center">测试用例运行时依赖</td>
+</tr>
+<tr>
+<td style="text-align:center">archives</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">uploadArchives</td>
+<td style="text-align:center">该项目发布构件依赖</td>
+</tr>
+<tr>
+<td style="text-align:center">default</td>
+<td style="text-align:center">runtime</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">默认依赖配置</td>
+</tr>
+</tbody>
+</table>
+<p>Java 插件还可以为不同的源集在百年编译时和运行是指定不同的依赖，比如 main 源集指定一个编译时依赖，learn 源集可以指定另外一个不同的依赖</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">dependencies&#123;</div><div class="line">    mainCompile <span class="string">'com.squareup.okhttp'</span>:<span class="string">'okhttp'</span>:<span class="string">'3.0.1'</span></div><div class="line">  	learnCompile <span class="string">'com.squareup.okhttp'</span>:<span class="string">'okhttp'</span>:<span class="string">'2.0.1'</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>依赖的通用使用格式（就是使用的时候将 sourceSet 替换为自定的源集名称）</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">名称</th>
+<th style="text-align:center">继承自</th>
+<th style="text-align:center">被那个任务使用</th>
+<th style="text-align:center">意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">sourceSetCompile</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">compileSourceSetJava</td>
+<td style="text-align:center">为指定的源集提供编译时依赖</td>
+</tr>
+<tr>
+<td style="text-align:center">sourceSetRuntime</td>
+<td style="text-align:center">sourceSetCompile</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">为指定的源集提供运行时依赖</td>
+</tr>
+</tbody>
+</table>
+<p>依赖一个项目</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">dependencies&#123;</div><div class="line">    compile project(<span class="string">':example'</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>依赖一个文件</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">dependencies&#123;</div><div class="line">    compile files(<span class="string">'libs/a.jar'</span>,<span class="string">'libs/b.jar'</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>依赖一个文件夹下的所有文件</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">dependencies&#123;</div><div class="line">    compile fileTree(<span class="string">dir:</span><span class="string">'libs'</span>,<span class="string">include:</span><span class="string">'*.jar'</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>构建一个 Java 项目</strong></p>
+<p>Java 插件为我们提供了很多任务，通过运行他们来达到构建 Java 项目的目的。</p>
+<p>build  构建整个项目—-编译、处理资源文件打包城 jar、编译测试用例代码、处理测试资源、运行单元测试</p>
+<p>clean 删除 build 目录以及其它构建生成的文件</p>
+<p>assemble 编译打包不会执行单元测试</p>
+<p>check 只会执行单元测试</p>
+<p>javadoc 为我们生成 java 格式的 doc api 文档</p>
+<p><strong>源码集合 SourceSet </strong></p>
+<p>SourceSet 是 Java 插件用来描述和管理源代码及其资源的一个抽象概念，是一个 Java 源代码和资源文件的集合。通过它我们可以方便的访问源代码目录，设置源集属性，更改源集 java 的目录或者资源目录</p>
+<p>Java 插件在 Project 下提供了一个 sourceSets 属性以及一个 sourceSets{} 闭包来访问和配置源集。sourceSets 是一个 SourceSetContainer。sourceSets{} 闭包配置的都是 SourceSet 对象</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">apply <span class="string">plugin:</span><span class="string">'java'</span></div><div class="line"></div><div class="line">sourceSets&#123;</div><div class="line">        main&#123;</div><div class="line"></div><div class="line">        &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">task printSourceSet&#123;</div><div class="line">        sourceSets.all&#123;    </div><div class="line">                println name   <span class="comment">//打印出所有源集的名称</span></div><div class="line">         &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>执行 gradle -q  printSourceSet ，输出 </p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">main</div><div class="line">test</div></pre></td></tr></table></figure>
+<p>源集有很多有用的属性，列举一下</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性名</th>
+<th style="text-align:center">类型</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">name</td>
+<td style="text-align:center">String</td>
+<td style="text-align:center">它是只读，比如 main</td>
+</tr>
+<tr>
+<td style="text-align:center">output.classesDir</td>
+<td style="text-align:center">File</td>
+<td style="text-align:center">该源集编译后的 class 文件目录</td>
+</tr>
+<tr>
+<td style="text-align:center">output.resourceDir</td>
+<td style="text-align:center">File</td>
+<td style="text-align:center">编译后生成的资源目录</td>
+</tr>
+<tr>
+<td style="text-align:center">compileClasspath</td>
+<td style="text-align:center">FileConnection</td>
+<td style="text-align:center">编译后该源集所需的 classPath</td>
+</tr>
+<tr>
+<td style="text-align:center">java</td>
+<td style="text-align:center">SourceDirectorySet</td>
+<td style="text-align:center">该源集的 Java 源文件</td>
+</tr>
+<tr>
+<td style="text-align:center">java.srcDirs</td>
+<td style="text-align:center">Set</td>
+<td style="text-align:center">该源集的 Java 源文件所在目录</td>
+</tr>
+<tr>
+<td style="text-align:center">resources</td>
+<td style="text-align:center">SourceDirectorySet</td>
+<td style="text-align:center">该源集资源文件</td>
+</tr>
+<tr>
+<td style="text-align:center">resources.srcDirs</td>
+<td style="text-align:center">Set</td>
+<td style="text-align:center">该源集资源文件所在目录</td>
+</tr>
+</tbody>
+</table>
+<p>使用方法(上面已经提到过)</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">sourceSets&#123;</div><div class="line">  main&#123;</div><div class="line">    java&#123;</div><div class="line">        srcDir <span class="string">'src/java'</span></div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>Java 插件添加的任务</strong></p>
+<p>直接上表格（通用任务）</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">任务名称</th>
+<th style="text-align:center">类型</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">compileJava</td>
+<td style="text-align:center">JavaCompile</td>
+<td style="text-align:center">使用 javac 编译 java 源文件</td>
+</tr>
+<tr>
+<td style="text-align:center">processResource</td>
+<td style="text-align:center">Copy</td>
+<td style="text-align:center">把资源文件拷贝到生产的资源文件目录里</td>
+</tr>
+<tr>
+<td style="text-align:center">classes</td>
+<td style="text-align:center">Task</td>
+<td style="text-align:center">组装产生的类和资源文件目录</td>
+</tr>
+<tr>
+<td style="text-align:center">compileTestJava</td>
+<td style="text-align:center">JavaCompile</td>
+<td style="text-align:center">使用 Javac 编译测试 Java 源文件</td>
+</tr>
+<tr>
+<td style="text-align:center">processTestResources</td>
+<td style="text-align:center">Copy</td>
+<td style="text-align:center">把测试资源文件复制到生产的资源文件目录里</td>
+</tr>
+<tr>
+<td style="text-align:center">testClasses</td>
+<td style="text-align:center">Task</td>
+<td style="text-align:center">组装产生的测试类和相关资源文件目录</td>
+</tr>
+<tr>
+<td style="text-align:center">jar</td>
+<td style="text-align:center">Jar</td>
+<td style="text-align:center">组装 Jar 文件</td>
+</tr>
+<tr>
+<td style="text-align:center">javadoc</td>
+<td style="text-align:center">Javadoc</td>
+<td style="text-align:center">使用 javadoc 生成 Java API 文档</td>
+</tr>
+<tr>
+<td style="text-align:center">test</td>
+<td style="text-align:center">Test</td>
+<td style="text-align:center">使用 jUnit 或 testNG 运行单元测试</td>
+</tr>
+<tr>
+<td style="text-align:center">uploadArchives</td>
+<td style="text-align:center">Upload</td>
+<td style="text-align:center">上传包含 Jar 的构建，用 archives{} 闭包配置</td>
+</tr>
+<tr>
+<td style="text-align:center">clean</td>
+<td style="text-align:center">Delete</td>
+<td style="text-align:center">清理构建生成的文件</td>
+</tr>
+<tr>
+<td style="text-align:center">cleanTaskName</td>
+<td style="text-align:center">Delete</td>
+<td style="text-align:center">删除指定任务生成的文件，比如 clearJar 删除 Jar 任务生成的</td>
+</tr>
+</tbody>
+</table>
+<p>（源集任务）执行任务时，sourceSet 要换成自定的源集名称</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">任务名称</th>
+<th style="text-align:center">类型</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">compileSourceSetJava</td>
+<td style="text-align:center">JavaCompile</td>
+<td style="text-align:center">使用 javac 编译指定源集的 Java 源代码</td>
+</tr>
+<tr>
+<td style="text-align:center">processSourceSetResources</td>
+<td style="text-align:center">Copy</td>
+<td style="text-align:center">把指定源集的资源文件复制到生产文件下的资源目录中</td>
+</tr>
+<tr>
+<td style="text-align:center">souceSetClasses</td>
+<td style="text-align:center">Task</td>
+<td style="text-align:center">组成长给定源集的类和资源文件目录</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Java 插件添加的属性</strong></p>
+<p>前面已经用到了 sourceSets，还是上表格</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">属性名</th>
+<th style="text-align:center">类型</th>
+<th style="text-align:center">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">sourceSet</td>
+<td style="text-align:center">SourceSetContainer</td>
+<td style="text-align:center">改 Java 项目的源集，可以访问和配置源集</td>
+</tr>
+<tr>
+<td style="text-align:center">sourceCompatibility</td>
+<td style="text-align:center">JavaVersion</td>
+<td style="text-align:center">编译 Java 源文件使用的 Java 版本</td>
+</tr>
+<tr>
+<td style="text-align:center">targetCompatibility</td>
+<td style="text-align:center">JavaVersion</td>
+<td style="text-align:center">编译生成类的 Java 版本</td>
+</tr>
+<tr>
+<td style="text-align:center">archivesBaseName</td>
+<td style="text-align:center">String</td>
+<td style="text-align:center">我们打包成 Jar 或者 Zip 文件的名字</td>
+</tr>
+<tr>
+<td style="text-align:center">manifest</td>
+<td style="text-align:center">Manifest</td>
+<td style="text-align:center">用于访问或者配置我们的 manifest 清单文件</td>
+</tr>
+<tr>
+<td style="text-align:center">libsDir</td>
+<td style="text-align:center">File</td>
+<td style="text-align:center">存放生成的类库目录</td>
+</tr>
+<tr>
+<td style="text-align:center">distsDir</td>
+<td style="text-align:center">File</td>
+<td style="text-align:center">存放生成的发布文件的目录</td>
+</tr>
+</tbody>
+</table>
+<p><strong>多项目构建</strong></p>
 
           <br>
 <p>learnice</p>
