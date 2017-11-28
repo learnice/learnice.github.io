@@ -4,7 +4,7 @@
 
 ## 关于我
 
-Android 开发者  G 粉
+Android 开发者 | G 粉
 
 ## 联系我
 
