@@ -50,7 +50,32 @@
             <div class='date'>2017-11-30</div>
             Android Gradle 插件
           </h1>
-          
+          <p><strong>Android Gradle 插件</strong></p>
+<p>Android Gradle 插件是 Gradle 的一个第三方插件，它是由 Google 的 Android 团队开发的，和 Android Studio 完美无缺的新一代构建系统</p>
+<p><strong>Android Gradle 插件分类</strong></p>
+<p>App 插件 ID：com.android.application        App 应用工程，可以生成一个可运行 apk 应用</p>
+<p>Library 插件 ID：com.android.library        Library 库工程，可以生成 AAR 包</p>
+<p>Test 插件 ID：com.android.test            对 App 工程或者 Library 库工程进行单元测试</p>
+<p><strong>应用 Android Gradle 插件</strong></p>
+<p>要应用一个插件，必须要知道它的插件 id，如果是第三方插件，需要配置它的依赖 classpath。Android Gradle 插件属于第三方插件，它托管在 jcenter 上，所以在使用它之前，要配置它的依赖 classpath</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">buildscript &#123;</div><div class="line">    repositories &#123;</div><div class="line">        jcenter()</div><div class="line">    &#125;</div><div class="line">    dependencies &#123;</div><div class="line">        classpath <span class="string">'com.android.tools.build:gradle:2.3.2'</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>配置仓库为 jcenter ，当我们配置依赖的时候，就会去这个仓库去寻找依赖</p>
+<p>buildscript{} 这部分配置可以写到根工程中的 build.gradle 脚本文件中，这样子工程就不需重复配置。配置好之后就可以应用 Android Gradle 插件了：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">apply <span class="string">plugin:</span> <span class="string">'com.android.application'</span></div><div class="line">android &#123;</div><div class="line">    compileSdkVersion <span class="number">25</span></div><div class="line">    buildToolsVersion <span class="string">"25.0.2"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>android{} 是 Android 插件提供的一个扩展类型，可以让我们自定义 Android Gradle 工程。compileSdkVersion 是编译所需的 Android SDK 的版本，buildToolsVersion 是构建工程所用构建工具版本</p>
+<p>minifyFiles 表示该构建类型是否启用混淆</p>
+<p>proguardFiles 当我们启动混淆时，所使用的 proguard 的配置文件，我们可以通过它配置如何进行 proguard 混淆。它对应 BuildType 的 proguardFiles 方法，可以接收一个可变参数，所以我么可以同时配置多个配置文件，比如</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">proguardFiles getDefaultProguardFile(<span class="string">'proguard-android.txt'</span>), <span class="string">'proguard-rules.pro'</span></div></pre></td></tr></table></figure>
+<p>getDefaultProguardFile 是 Android 插件的扩展方法，他可以获取你的 Android SDK 目录下默认的 proguard 配置文件。</p>
+<p><strong>Android Gradle 任务</strong></p>
+<p>Android 插件是基于 Java 插件的，所以 Android 插件基本上包含了所有的 Java 插件的功能。Android 在大类上还添加了 一些功能：（可以用 ./gradlew tasks 查看其它任务）</p>
+<p>connectedCheck        在所有连接的设备或者模拟器上运行 check 检查</p>
+<p>deviceCheck            通过 API 连接远程设备运行 checks。它被用于 CI 服务器上</p>
+<p>lint                    在所有的 productFlavor 上运行 lint 检查</p>
+<p>install 和 uninstall        可以在我们设备上安装或卸载 App</p>
+<p>signingReport            可以打印 APP 的签名</p>
+<p>androidDependencies    可以打印 Android 的依赖</p>
+
           <br>
 <p>learnice</p>
 <p><img src='/images/scribble3.png' alt='scribble'  width='33' height='33'></p>
