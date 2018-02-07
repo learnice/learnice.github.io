@@ -1,0 +1,117 @@
+<html>
+  <head>
+    <title>Git 使用总结 - learnice</title>
+    <link href='/images/fav.png' rel='shortcut icon'>
+<link href='/atom.xml' rel='alternate' type='application/rss+xml'>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/highlight.css">
+<link rel="stylesheet" href="/css/responsive.css">
+<script src="/js/jquery.js"></script>
+<script src="/js/basics.js"></script>
+<meta content='width=device-width, initial-scale=1.0, user-scalable=no' name='viewport'>
+<meta content='text/html; charset=utf-8' http-equiv='content-type'>
+
+
+  </head>
+  <body>
+    <header>
+  <a id='go-back-home' href='/'><img src='/images/scribble.png' alt='Home' width='66' height='66'></a>
+  <p>learnice</p>
+  <p>不忘初心</p>
+</header>
+
+    <div id='container'>
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+      <section class='paging'>
+  
+  
+    <div class='right'>
+      <a href='/2017/11/30/自定义-Android-Gradle-工程/'>
+        ›
+      </a>
+    </div>
+  
+</section>
+
+      <div class='content'>
+        <section class='post'>
+          <h1>
+            <div class='date'>2018-02-05</div>
+            Git 使用总结
+          </h1>
+          <p><strong>git init</strong>  将当前目录变成 Git 可以管理的仓库</p>
+<p><strong>git add file_1  file_2</strong>  将文件添加到仓库暂存区</p>
+<p><strong>git commit  -m “description”</strong> 将文件添加到仓库</p>
+<p><strong>git status</strong> 返回仓库当前的状态</p>
+<p><strong>git diff file_1</strong> 查看当前文件的变化（显示的格式正是Unix通用的diff格式）</p>
+<p><strong>git log</strong> 返回所有的记录</p>
+<p><strong>git log –pretty=oneline</strong> 简化的记录单行显示</p>
+<p>在 git 中 HEAD 指向的是当前的版本，上一个版本可以表示为 HEAD^,上上一个版本表示为 HEAD^^,上 n 个版本 HEAD~n</p>
+<p><strong>git reset</strong> 把当前版本回退到指定的版本</p>
+<p><strong>git reset –hard HEAD^</strong> 回退到上一个版本</p>
+<p>也可以 <strong>git reset –hard “commit id”</strong> 回退指定的版本</p>
+<p><strong>git reflog</strong> 用来记录每一次的命令（后悔药）</p>
+<h4 id="工作区与暂存区"><a href="#工作区与暂存区" class="headerlink" title="工作区与暂存区"></a>工作区与暂存区</h4><p><img src="/images/git_1.jpg" alt="工作区与暂存区"></p>
+<p>第一步是用<code>git add</code>把文件添加进去，实际上就是把文件修改添加到暂存区；</p>
+<p>第二步是用<code>git commit</code>提交更改，实际上就是把暂存区的所有内容提交到当前分支。</p>
+<p>我们创建 Git 版本库时，Git 自动为我们创建了唯一一个<code>master</code>分支，所以，现在，<code>git commit</code>就是往<code>master</code>分支上提交更改。</p>
+<p><strong>git commit只负责把暂存区的修改提交到仓库</strong></p>
+<p><strong>git diff HEAD – file_</strong> 命令可以查看工作区和版本库里面最新版本的区别</p>
+<p><strong>git checkout – file_</strong> 撤销工作区的修改</p>
+<p>这里有两种情况：</p>
+<p>一种是自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；</p>
+<p>一种是已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。</p>
+<p><strong>git reset HEAD file</strong> 可以把暂存区的修改撤销掉</p>
+<p><strong>git rm</strong> 用于删除文件</p>
+<h4 id="添加远程仓库"><a href="#添加远程仓库" class="headerlink" title="添加远程仓库"></a>添加远程仓库</h4><p>在 GitHub 建立新的仓库是会给出提示</p>
+<p>如果要创建一个新仓库时：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">git init</div><div class="line">git add README.md</div><div class="line">git commit -m "first commit"</div><div class="line">git remote add origin https://github.com/learnice/learngit.git</div><div class="line">git push -u origin master</div></pre></td></tr></table></figure>
+<p>如果要与一个已经存在的库做关联时</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">git remote add origin https://github.com/learnice/learngit.git   #关联远程库</div><div class="line">git push -u origin master #第一次推送 master 分支多有内容</div></pre></td></tr></table></figure>
+<p><code>git push</code>命令，实际上是把当前分支<code>master</code>推送到远程。</p>
+<p>由于远程库是空的，我们第一次推送<code>master</code>分支时，加上了<code>-u</code>参数，Git不但会把本地的<code>master</code>分支内容推送的远程新的<code>master</code>分支，还会把本地的<code>master</code>分支和远程的<code>master</code>分支关联起来，在以后的推送或者拉取时就可以简化命令。</p>
+<p>其中远程库的名字就是<code>origin</code>，这是Git默认的叫法。</p>
+<p> <strong>git push origin master</strong>  把本地<code>master</code>分支的最新修改推送至 GitHub</p>
+<p> <strong>git clone .git</strong> 克隆远程库</p>
+<p>Git支持多种协议，包括<code>https</code>，但通过<code>ssh</code>支持的原生<code>git</code>协议速度最快。</p>
+<p>——-未完待续——–</p>
+
+          <br>
+<p>learnice</p>
+<p><img src='/images/scribble3.png' alt='scribble'  width='33' height='33'></p>
+
+        </section>
+      </div>
+      
+      <div class='block'>
+  
+    <a class='main' href='/'>Home</a>
+  
+    <a class='main' href='mailto:learnice.he@gmail.com'>Email</a>
+  
+    <a class='main' href='https://github.com/learnice'>Github</a>
+  
+    <a class='main' href='/about'>About</a>
+  
+</div>
+
+    </div>
+    <footer>
+  <span class='muted'>learnice</span><br>
+  <br>
+  <br>
+</footer>
+
+  </body>
+</html>
