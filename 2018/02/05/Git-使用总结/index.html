@@ -85,7 +85,49 @@
 <p> <strong>git push origin master</strong>  把本地<code>master</code>分支的最新修改推送至 GitHub</p>
 <p> <strong>git clone .git</strong> 克隆远程库</p>
 <p>Git支持多种协议，包括<code>https</code>，但通过<code>ssh</code>支持的原生<code>git</code>协议速度最快。</p>
-<p>——-未完待续——–</p>
+<h4 id="分支管理"><a href="#分支管理" class="headerlink" title="分支管理"></a>分支管理</h4><p><strong>Git 分支的基本概念</strong></p>
+<p>在Git里，<code>HEAD</code>严格来说不是指向提交，而是指向<code>master</code>，<code>master</code>才是指向提交的，所以，<code>HEAD</code><strong>指向的就是当前分支</strong>。</p>
+<p>一开始的时候，<code>master</code>分支是一条线，Git 用<code>master</code>指向最新的提交，再用<code>HEAD</code>指向<code>master</code>，就能确定当前分支，以及当前分支的提交点：</p>
+<p><img src="/images/git_1.png" alt="1"></p>
+<p>每次提交，<code>master</code>分支都会向前移动一步，这样，随着你不断提交，<code>master</code>分支的线也越来越长</p>
+<p>当我们创建新的分支，例如<code>dev</code>时，Git 新建了一个指针叫<code>dev</code>，指向<code>master</code>相同的提交，再把<code>HEAD</code>指向<code>dev</code>，就表示当前分支在<code>dev</code>上：</p>
+<p><img src="/images/git_2.png" alt="2"></p>
+<p>你看，Git创建一个分支很快，因为除了增加一个<code>dev</code>指针，改改<code>HEAD</code>的指向，工作区的文件都没有任何变化！</p>
+<p>不过，从现在开始，对工作区的修改和提交就是针对<code>dev</code>分支了，比如新提交一次后，<code>dev</code>指针往前移动一步，而<code>master</code>指针不变：</p>
+<p><img src="/images/git_3.png" alt="3"></p>
+<p>假如我们在<code>dev</code>上的工作完成了，就可以把<code>dev</code>合并到<code>master</code>上。Git 怎么合并呢？最简单的方法，就是直接把<code>master</code>指向<code>dev</code>的当前提交，就完成了合并：</p>
+<p><img src="/images/git_4.png" alt="4"></p>
+<p>所以Git合并分支也很快！就改改指针，工作区内容也不变！</p>
+<p>合并完分支后，甚至可以删除<code>dev</code>分支。删除<code>dev</code>分支就是把<code>dev</code>指针给删掉，删掉后，我们就剩下了一条<code>master</code>分支：</p>
+<p><img src="/images/git_5.png" alt="5"></p>
+<p><strong>分支操作的相关命令</strong></p>
+<p><strong>git checkout -b dev</strong> 创建并且切换到 ”dev 分支“  等同于  <strong>git branch dev</strong> + <strong>git checkout dev</strong></p>
+<p><strong>git branch</strong> 查看当前的所有分支</p>
+<p><strong>git merge dev</strong> 合并 “dev” 到当前分支</p>
+<p><strong>分支冲突</strong></p>
+<p>当合并分支出现冲突时（这个时候分支其实已经合并了，Git 会对冲突的文件做出标记），Git 会用<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>，<code>=======</code>，<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>标记出不同分支的内容，我们修改后就可以重新添加和保存。</p>
+<p><strong>git log –graph –pretty=oneline –abbrev-commit</strong> 可以清除的看到分支的合并图的情况</p>
+<p><strong>分支管理的基本策略</strong></p>
+<p>通常，合并分支时，如果可能，Git会用<code>Fast forward</code>模式，但这种模式下，删除分支后，会丢掉分支信息。</p>
+<p>如果要强制禁用<code>Fast forward</code>模式，Git就会在merge时生成一个新的commit，这样，从分支历史上就可以看出分支信息。</p>
+<p>用到的参数就是 <code>--no-ff</code>  </p>
+<p>例如：<strong>git merge –no-ff -m “*</strong>“ dev** 就是禁用 Fast forward 的方式合并分支，<code>-m</code> 用来添加信息</p>
+<p><img src="/images/git_6.png" alt="6"></p>
+<p>在实际开发中，我们应该按照几个基本原则进行分支管理：</p>
+<p><code>master</code>分支应该是非常稳定的，也就是仅用来发布新版本，平时不能在上面干活，干活都在<code>dev</code>分支上，也就是说，<code>dev</code>分支是不稳定的，到某个时候，比如 1.0 版本发布时，再把<code>dev</code>分支合并到<code>master</code>上，在<code>master</code>分支发布1.0版本。你和你的小伙伴们每个人都在<code>dev</code>分支上干活，每个人都有自己的分支，时不时地往<code>dev</code>分支上合并就可以了。</p>
+<p><img src="/images/git_7.png" alt="7"></p>
+<p><strong>bug 分支</strong></p>
+<p>软件开发中，每个bug都可以通过一个新的临时分支来修复，修复后，合并分支，然后将临时分支删除。</p>
+<p>这里有一个问题：当我们接到一个修复 bug 任务时，假如当前手上的任务没有完成，而且 bug 的任务还比较急的时候怎么办呢？Git 还提供了一个<code>stash</code>功能，可以把当前工作现场“储藏”起来，等以后恢复现场后继续工作。</p>
+<p><strong>git stash</strong> 用来保存当前的工作状态</p>
+<p><strong>git stash list</strong> 查看保存的工作内容</p>
+<p>恢复有两个办法：一是用<code>git stash apply</code>恢复，但是恢复后，stash内容并不删除，你需要用<code>git stash drop</code>来删除；另一种方式是用<code>git stash pop</code>，恢复的同时把stash内容也删了。</p>
+<p><strong>Feature 分支</strong></p>
+<p>软件开发中，总有无穷无尽的新的功能要不断添加进来。添加一个新功能时，你肯定不希望因为一些实验性质的代码，把主分支搞乱了，所以，每添加一个新功能，最好新建一个 feature 分支，在上面开发，完成后，合并，最后，删除该 feature 分支。<strong>这个分支的特性基本上与 bug 分支类似</strong></p>
+<p><strong>git branch -D 某分支</strong> 用来强制删除某分子</p>
+<p><strong>多人协作</strong></p>
+<p>—-未完待续—-</p>
+<p>本文学习自 <a href="https://www.liaoxuefeng.com" target="_blank" rel="external">廖雪峰的官方网站</a> 感谢作者！</p>
 
           <br>
 <p>learnice</p>
