@@ -50,7 +50,7 @@
             <div class='date'>2018-02-05</div>
             Git 使用总结
           </h1>
-          <p><strong>git init</strong>  将当前目录变成 Git 可以管理的仓库</p>
+          <h2 id="基本操作命令"><a href="#基本操作命令" class="headerlink" title="基本操作命令"></a>基本操作命令</h2><p><strong>git init</strong>  将当前目录变成 Git 可以管理的仓库</p>
 <p><strong>git add file_1  file_2</strong>  将文件添加到仓库暂存区</p>
 <p><strong>git commit  -m “description”</strong> 将文件添加到仓库</p>
 <p><strong>git status</strong> 返回仓库当前的状态</p>
@@ -62,7 +62,7 @@
 <p><strong>git reset –hard HEAD^</strong> 回退到上一个版本</p>
 <p>也可以 <strong>git reset –hard “commit id”</strong> 回退指定的版本</p>
 <p><strong>git reflog</strong> 用来记录每一次的命令（后悔药）</p>
-<h4 id="工作区与暂存区"><a href="#工作区与暂存区" class="headerlink" title="工作区与暂存区"></a>工作区与暂存区</h4><p><img src="/images/git_0.jpg" alt="工作区与暂存区"></p>
+<h2 id="工作区与暂存区"><a href="#工作区与暂存区" class="headerlink" title="工作区与暂存区"></a>工作区与暂存区</h2><p><img src="/images/git_0.jpg" alt="工作区与暂存区"></p>
 <p>第一步是用<code>git add</code>把文件添加进去，实际上就是把文件修改添加到暂存区；</p>
 <p>第二步是用<code>git commit</code>提交更改，实际上就是把暂存区的所有内容提交到当前分支。</p>
 <p>我们创建 Git 版本库时，Git 自动为我们创建了唯一一个<code>master</code>分支，所以，现在，<code>git commit</code>就是往<code>master</code>分支上提交更改。</p>
@@ -74,7 +74,7 @@
 <p>一种是已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。</p>
 <p><strong>git reset HEAD file</strong> 可以把暂存区的修改撤销掉</p>
 <p><strong>git rm</strong> 用于删除文件</p>
-<h4 id="添加远程仓库"><a href="#添加远程仓库" class="headerlink" title="添加远程仓库"></a>添加远程仓库</h4><p>在 GitHub 建立新的仓库是会给出提示</p>
+<h2 id="添加远程仓库"><a href="#添加远程仓库" class="headerlink" title="添加远程仓库"></a>添加远程仓库</h2><p>在 GitHub 建立新的仓库是会给出提示</p>
 <p>如果要创建一个新仓库时：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">git init</div><div class="line">git add README.md</div><div class="line">git commit -m "first commit"</div><div class="line">git remote add origin https://github.com/learnice/learngit.git</div><div class="line">git push -u origin master</div></pre></td></tr></table></figure>
 <p>如果要与一个已经存在的库做关联时</p>
@@ -85,7 +85,7 @@
 <p> <strong>git push origin master</strong>  把本地<code>master</code>分支的最新修改推送至 GitHub</p>
 <p> <strong>git clone .git</strong> 克隆远程库</p>
 <p>Git支持多种协议，包括<code>https</code>，但通过<code>ssh</code>支持的原生<code>git</code>协议速度最快。</p>
-<h4 id="分支管理"><a href="#分支管理" class="headerlink" title="分支管理"></a>分支管理</h4><p><strong>Git 分支的基本概念</strong></p>
+<h2 id="分支管理"><a href="#分支管理" class="headerlink" title="分支管理"></a>分支管理</h2><p><strong>Git 分支的基本概念</strong></p>
 <p>在Git里，<code>HEAD</code>严格来说不是指向提交，而是指向<code>master</code>，<code>master</code>才是指向提交的，所以，<code>HEAD</code><strong>指向的就是当前分支</strong>。</p>
 <p>一开始的时候，<code>master</code>分支是一条线，Git 用<code>master</code>指向最新的提交，再用<code>HEAD</code>指向<code>master</code>，就能确定当前分支，以及当前分支的提交点：</p>
 <p><img src="/images/git_1.png" alt="1"></p>
@@ -108,10 +108,10 @@
 <p>当合并分支出现冲突时（这个时候分支其实已经合并了，Git 会对冲突的文件做出标记），Git 会用<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>，<code>=======</code>，<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>标记出不同分支的内容，我们修改后就可以重新添加和保存。</p>
 <p><strong>git log –graph –pretty=oneline –abbrev-commit</strong> 可以清除的看到分支的合并图的情况</p>
 <p><strong>分支管理的基本策略</strong></p>
-<p>通常，合并分支时，如果可能，Git会用<code>Fast forward</code>模式，但这种模式下，删除分支后，会丢掉分支信息。</p>
-<p>如果要强制禁用<code>Fast forward</code>模式，Git就会在merge时生成一个新的commit，这样，从分支历史上就可以看出分支信息。</p>
+<p>通常，合并分支时，如果可能，Git 会用<code>Fast forward</code>模式，但这种模式下，删除分支后，会丢掉分支信息。</p>
+<p>如果要强制禁用<code>Fast forward</code>模式，Git 就会在merge时生成一个新的 commit，这样，从分支历史上就可以看出分支信息。</p>
 <p>用到的参数就是 <code>--no-ff</code>  </p>
-<p>例如：<strong>git merge –no-ff -m “*</strong>“ dev** 就是禁用 Fast forward 的方式合并分支，<code>-m</code> 用来添加信息</p>
+<p>例如：<strong>git merge –no-ff -m “msg” dev</strong> 就是禁用 Fast forward 的方式合并分支，<code>-m</code> 用来添加信息</p>
 <p><img src="/images/git_6.png" alt="6"></p>
 <p>在实际开发中，我们应该按照几个基本原则进行分支管理：</p>
 <p><code>master</code>分支应该是非常稳定的，也就是仅用来发布新版本，平时不能在上面干活，干活都在<code>dev</code>分支上，也就是说，<code>dev</code>分支是不稳定的，到某个时候，比如 1.0 版本发布时，再把<code>dev</code>分支合并到<code>master</code>上，在<code>master</code>分支发布1.0版本。你和你的小伙伴们每个人都在<code>dev</code>分支上干活，每个人都有自己的分支，时不时地往<code>dev</code>分支上合并就可以了。</p>
@@ -125,8 +125,25 @@
 <p><strong>Feature 分支</strong></p>
 <p>软件开发中，总有无穷无尽的新的功能要不断添加进来。添加一个新功能时，你肯定不希望因为一些实验性质的代码，把主分支搞乱了，所以，每添加一个新功能，最好新建一个 feature 分支，在上面开发，完成后，合并，最后，删除该 feature 分支。<strong>这个分支的特性基本上与 bug 分支类似</strong></p>
 <p><strong>git branch -D 某分支</strong> 用来强制删除某分支</p>
-<p><strong>多人协作</strong></p>
-<p>—-未完待续—-</p>
+<h2 id="多人协作"><a href="#多人协作" class="headerlink" title="多人协作"></a>多人协作</h2><p>从远程仓库克隆时，实际上 Git 自动把本地的<code>master</code>分支和远程的<code>master</code>分支对应起来了，并且，远程仓库的默认名称是<code>origin</code>。</p>
+<p><strong>git remote</strong> 查看远程仓库的信息</p>
+<p>多人协作的情况，假如远程库 origin 上有两个分支 master 和 dev。现在一个新成员加入，可以从远程库克隆 <code>git clone</code> ，克隆完成后他的本地其实只有 master 一个分支。如果要在<code>dev</code>分支上开发，就必须创建远程<code>origin</code>的<code>dev</code>分支到本地，可以下面这个命令创建本地<code>dev</code>分支：</p>
+<p><strong>git branch dev origin/dev</strong> 这个命令的作用化是创建本地分支与远程 origin 的 dev 分支关联。（本地分支和远程分支最哈用相同的名字）</p>
+<p>然后调用 <strong>git checkout dev</strong>  就可以在本地 dev 分支上开发了</p>
+<p>调用 <strong>git push origin dev</strong> 可以将本地 dev 的改变同步到远程 dev</p>
+<p><strong>git pull</strong> 从远程抓取分支（当 push 有冲突时，要先重远程抓取）</p>
+<p><strong>git push origin branch-name</strong> 从本地推送分支</p>
+<p><strong>git branch –set-upstream-to=origin/branch-name branch-name</strong>  建立本地分支和远程分支的关联</p>
+<h2 id="标签管理"><a href="#标签管理" class="headerlink" title="标签管理"></a>标签管理</h2><p>发布一个版本时，我们通常先在版本库中打一个标签（tag），这样，就唯一确定了打标签时刻的版本。将来无论什么时候，取某个标签的版本，就是把那个打标签的时刻的历史版本取出来。所以，标签也是版本库的一个快照。</p>
+<p>Git 的标签虽然是版本库的快照，但其实它就是指向某个 commit 的指针（跟分支很像对不对？但是分支可以移动，标签不能移动），所以，创建和删除标签都是瞬间完成的。</p>
+<p>tag 就是一个让人容易记住的有意义的名字，它跟某个 commit 绑在一起。</p>
+<p><strong>git tag name</strong> 添加标签（默认标签是打在最新提交的 commit 上的）</p>
+<p><strong>git tag name commit_id</strong> 给某个 commit_id 上添加标签</p>
+<p><strong>git tag</strong>  查看标签</p>
+<p><strong>git show tagname</strong> 查看标签信息</p>
+<p><strong>git tag -a tagname -m “说明” commit_id</strong> 用<code>-a</code>指定标签名，<code>-m</code>指定说明文字</p>
+<p> <strong>git tag -s v0.2 -m “说明” commit_id</strong> <code>-s</code>用私钥签名一个标签</p>
+<p>签名采用 PGP 签名，因此，必须首先安装 gpg（GnuPG），如果没有找到 gpg，或者没有 gpg 密钥对，就会报错</p>
 <p>本文学习自 <a href="https://www.liaoxuefeng.com" target="_blank" rel="external">廖雪峰的官方网站</a> 感谢作者！</p>
 
           <br>
