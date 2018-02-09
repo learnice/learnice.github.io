@@ -144,6 +144,10 @@
 <p><strong>git tag -a tagname -m “说明” commit_id</strong> 用<code>-a</code>指定标签名，<code>-m</code>指定说明文字</p>
 <p> <strong>git tag -s v0.2 -m “说明” commit_id</strong> <code>-s</code>用私钥签名一个标签</p>
 <p>签名采用 PGP 签名，因此，必须首先安装 gpg（GnuPG），如果没有找到 gpg，或者没有 gpg 密钥对，就会报错</p>
+<p><strong>git push origin tagname</strong> 可以推送一个本地标签到远程</p>
+<p><strong>git push origin –tags</strong> 可以推送全部未推送过的本地标签到远程</p>
+<p><strong>git tag -d tagname</strong> 可以删除一个本地标签</p>
+<p><strong>git push origin :refs/tags/tagname</strong> 可以删除一个远程标签</p>
 <p>本文学习自 <a href="https://www.liaoxuefeng.com" target="_blank" rel="external">廖雪峰的官方网站</a> 感谢作者！</p>
 
           <br>
